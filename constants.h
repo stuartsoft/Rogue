@@ -28,8 +28,8 @@
 //                  Constants
 //-----------------------------------------------
 // window
-const char CLASS_NAME[] = "ThreeCsDX";
-const char GAME_TITLE[] = "Ninja Ghost";
+const char CLASS_NAME[] = "Rogue Class";
+const char GAME_TITLE[] = "Rogue";
 const bool FULLSCREEN = false;          // windowed or fullscreen
 const UINT GAME_WIDTH = 1280;			// width of game in pixels
 const UINT GAME_HEIGHT = 720;			// height of game in pixels
@@ -41,29 +41,6 @@ const float MIN_FRAME_RATE = 10.0f;             // the minimum frame rate
 const float MIN_FRAME_TIME = 1.0f/FRAME_RATE;   // minimum desired time for 1 frame
 const float MAX_FRAME_TIME = 1.0f/MIN_FRAME_RATE; // maximum time used in calculations
 
-const int MAX_PLATFORMS = 30;
-const int MAX_SHURIKEN = 5;
-const int MAX_GUARDS = 25;
-const int BULLETS_PER_GUARD = 10;
-
-const int LEVEL1_GUARDS = 6;
-const int LEVEL2_GUARDS = 11;
-
-const int LEVEL1_PLATFORMS = 14;
-const int LEVEL2_PLATFORMS = 21;
-
-const float THROW_COOLDOWN = 0.9f;
-const float KATANA_COOLDOWN = 0.7f;
-const float FLINCH_DURATION = 0.5f;
-
-const int MAX_LIVES = 3;
-
-const int AMMO_PER_MELEE_KILL = 2;
-const int AMMO_PER_RANGED_KILL = 1;
-const int SCORE_PER_MELEE_KILL = 100;
-const int SCORE_PER_RANGED_KILL = 50;
-const float HEALTH_PER_MELEE_KILL = 50.0f;
-const float HEALTH_PER_RANGED_KILL = 25.0f;
 
 // audio files
 const char WAVE_BANK[] = "Sound\\Win\\Wave Bank.xwb";
@@ -86,22 +63,10 @@ const UCHAR S_KEY		 = 0x53;
 const UCHAR E_KEY		 = 0x45;
 
 // texture images
-const char KATANA_IMAGE[] = "images\\katana.png";
-const char SHURIKEN_IMAGE[] = "images\\shuriken2.png";
-const char GUARD_TEXTURE[] = "images\\guard2.png";
-const char DOOR_IMAGE[] = "images\\door.png";
 
 // splash screen images
-const char MAIN_MENU_IMAGE[] = "images\\menu.png";
-const char SPLASH1_IMAGE[] = "images\\splash1.png";
-const char SPLASH2_IMAGE[] = "images\\splash2.png";
-const char TUTORIAL_IMAGE[] = "images\\tutorial.png";
 
 // States
-enum GameStates {MAIN_MENU, TUTORIAL, INTRO1, LEVEL1, INTRO2, LEVEL2, GAME_OVER, GAME_COMPLETE};
-
-// Pattern Step Actions
-enum PATTERN_STEP_ACTION {NONE, LEFT, RIGHT};
-
+enum GameStates {};
 
 #endif

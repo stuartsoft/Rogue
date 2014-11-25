@@ -92,45 +92,27 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="audio.cpp" />
-    <ClCompile Include="bullet.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="graphics.cpp" />
-    <ClCompile Include="guard.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="input.cpp" />
-    <ClCompile Include="katana.cpp" />
-    <ClCompile Include="life.cpp" />
-    <ClCompile Include="menu.cpp" />
-    <ClCompile Include="patternStep.cpp" />
-    <ClCompile Include="platform.cpp" />
-    <ClCompile Include="player.cpp" />
-    <ClCompile Include="shuriken.cpp" />
     <ClCompile Include="textDX.cpp" />
-    <ClCompile Include="ninjaGhost.cpp" />
+    <ClCompile Include="rogue.cpp" />
     <ClCompile Include="textureManager.cpp" />
     <ClCompile Include="winmain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio.h" />
-    <ClInclude Include="bullet.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="entity.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="gameError.h" />
     <ClInclude Include="graphics.h" />
-    <ClInclude Include="guard.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="input.h" />
-    <ClInclude Include="katana.h" />
-    <ClInclude Include="life.h" />
-    <ClInclude Include="menu.h" />
-    <ClInclude Include="patternStep.h" />
-    <ClInclude Include="platform.h" />
-    <ClInclude Include="player.h" />
-    <ClInclude Include="shuriken.h" />
     <ClInclude Include="textDX.h" />
-    <ClInclude Include="ninjaGhost.h" />
+    <ClInclude Include="rogue.h" />
     <ClInclude Include="textureManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
