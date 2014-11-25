@@ -97,6 +97,7 @@
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="input.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="textDX.cpp" />
     <ClCompile Include="rogue.cpp" />
     <ClCompile Include="textureManager.cpp" />
@@ -111,6 +112,7 @@
     <ClInclude Include="graphics.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="textDX.h" />
     <ClInclude Include="rogue.h" />
     <ClInclude Include="textureManager.h" />

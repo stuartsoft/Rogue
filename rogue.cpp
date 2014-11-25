@@ -34,8 +34,15 @@ Rogue::~Rogue()
 void Rogue::initialize(HWND hwnd)
 {
 	Game::initialize(hwnd);
-	graphics->setBackColor(0x000000);
 	
+	if(!PlayerTM.initialize(graphics,PLAYER_TEXTURE))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init player texture"));
+	if(!player.initialize(this, playerNS::WIDTH, playerNS::HEIGHT, playerNS::TEXTURE_COL, &PlayerTM))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init player"));
+	player.setCurrentFrame(0);
+	player.setX(0);
+	player.setY(0);
+
 	return;
 }
 
@@ -53,7 +60,7 @@ void Rogue::reset()
 //=============================================================================
 void Rogue::update()
 {
-	
+	player.update(frameTime);
 }
 
 //=============================================================================
@@ -62,7 +69,9 @@ void Rogue::update()
 void Rogue::render()
 {
 	graphics->spriteBegin();
-	
+
+	player.draw();
+
 	graphics->spriteEnd();
 }
 
@@ -89,6 +98,7 @@ void Rogue::collisions()
 //=============================================================================
 void Rogue::releaseAll()
 {
+	PlayerTM.onLostDevice();
 	Game::releaseAll();
 	return;
 }
@@ -99,6 +109,7 @@ void Rogue::releaseAll()
 //=============================================================================
 void Rogue::resetAll()
 {
+	PlayerTM.onResetDevice();
 	Game::resetAll();
 	return;
 }

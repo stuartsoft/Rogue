@@ -55,14 +55,18 @@ const UCHAR CONSOLE_KEY  = VK_OEM_3;    // `~ key for U.S.
 const UCHAR ESC_KEY      = VK_ESCAPE;   // escape key
 const UCHAR ALT_KEY      = VK_MENU;     // Alt key
 const UCHAR ENTER_KEY    = VK_RETURN;   // Enter key
+const UCHAR SPACE_KEY	 = VK_SPACE;	// spacebar
 const UCHAR ATTACK_KEY	 = VK_LBUTTON;   // left button
 const UCHAR THROW_KEY	 = VK_RBUTTON;   // right button
 
 const UCHAR W_KEY		 = 0x57;
 const UCHAR S_KEY		 = 0x53;
+const UCHAR A_KEY		 = 0x41;
+const UCHAR D_KEY		 = 0x44;
 const UCHAR E_KEY		 = 0x45;
 
 // texture images
+const char PLAYER_TEXTURE[] = "images\\player.png";
 
 // splash screen images
 

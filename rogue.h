@@ -11,6 +11,7 @@
 #include "textDX.h"
 #include "constants.h"
 #include "entity.h"
+#include "player.h"
 
 #include <sstream>
 
@@ -18,6 +19,9 @@ class Rogue : public Game
 {
 private:
 	// game items
+
+	TextureManager PlayerTM;
+	Player player;
 
 public:
 	Rogue();
