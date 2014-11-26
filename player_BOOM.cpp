@@ -23,7 +23,6 @@ Player::Player(){
 	health = playerNS::MAX_HEALTH;
 
 	facingDir = none;
-
 }
 
 void Player::draw()
@@ -37,16 +36,27 @@ void Player::update(float frameTime)
 	spriteData.x += velocity.x;
 	spriteData.y += velocity.y;
 
-	
+
 	// INPUT
 	D3DXVECTOR2 inputDir(0,0);
 	if(input->isKeyDown(W_KEY))
 	{
 		inputDir.y = -1;
-		if(facingDir != up)
+		if(facingDir != up && !input->isKeyDown(A_KEY) && !input->isKeyDown(D_KEY))
 		{
 			facingDir = up;
 			setFrames(playerNS::UP_START,playerNS::UP_END);
+			setCurrentFrame(playerNS::UP_START +1);
+		}
+	}
+	if(input->isKeyDown(S_KEY))
+	{
+		inputDir.y = 1;
+		if(facingDir != down  && !input->isKeyDown(A_KEY) && !input->isKeyDown(D_KEY))
+		{
+			facingDir = down;
+			setFrames(playerNS::DOWN_START,playerNS::DOWN_END);
+			setCurrentFrame(playerNS::DOWN_START +1);
 		}
 	}
 	if(input->isKeyDown(A_KEY))
@@ -56,24 +66,17 @@ void Player::update(float frameTime)
 		{
 			facingDir = left;
 			setFrames(playerNS::LEFT_START,playerNS::LEFT_END);
+			setCurrentFrame(playerNS::LEFT_START +1);
 		}
 	}
-	if(input->isKeyDown(D_KEY))
+	else if(input->isKeyDown(D_KEY))
 	{
 		inputDir.x = 1;
 		if(facingDir != right)
 		{
 			facingDir = right;
 			setFrames(playerNS::RIGHT_START,playerNS::RIGHT_END);
-		}
-	}
-	if(input->isKeyDown(S_KEY))
-	{
-		inputDir.y = 1;
-		if(facingDir != down)
-		{
-			facingDir = down;
-			setFrames(playerNS::DOWN_START,playerNS::DOWN_END);
+			setCurrentFrame(playerNS::RIGHT_START+1);
 		}
 	}
 	if(inputDir.x == 0 && inputDir.y == 0)
@@ -87,10 +90,10 @@ void Player::update(float frameTime)
 		setFrameDelay(playerNS::FRAME_DELAY/0.3f);
 	}
 	else
-	{
 		setFrameDelay(playerNS::FRAME_DELAY);
-	}
 	inputDir *= playerNS::SPEED*frameTime;
+
+	D3DXVec2Normalize(&inputDir, &inputDir);
 	setVelocity(inputDir);
 
 }

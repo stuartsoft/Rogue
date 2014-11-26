@@ -4,17 +4,17 @@
 #include "entity.h"
 
 namespace playerNS{
-	const int WIDTH = 32;                   // image width
-	const int HEIGHT = 32;                  // image height
+	const int WIDTH = 64;                   // image width
+	const int HEIGHT = 64;                  // image height
 	const int X = GAME_WIDTH/2 - WIDTH/2;   // location on screen
 	const int Y = GAME_HEIGHT/2 - HEIGHT/2;
 	const float MAX_HEALTH = 100.0f;
 	const int MAX_SPEED_X = 750;
 	const int MAX_SPEED_Y = 750;
-	const int SPEED = 350;
+	const int SPEED = 150;
 
 	const int TEXTURE_COL = 4;
-	const float SCALE = 3.0f;
+	const float SCALE = 1.0f;
 
 	const int DOWN_START = 0;
 	const int DOWN_END = 3;

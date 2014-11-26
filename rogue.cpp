@@ -34,7 +34,7 @@ Rogue::~Rogue()
 void Rogue::initialize(HWND hwnd)
 {
 	Game::initialize(hwnd);
-	
+	graphics->setBackColor(0xFFFFFF);
 	if(!PlayerTM.initialize(graphics,PLAYER_TEXTURE))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init player texture"));
 	if(!player.initialize(this, playerNS::WIDTH, playerNS::HEIGHT, playerNS::TEXTURE_COL, &PlayerTM))
