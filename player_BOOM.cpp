@@ -12,7 +12,7 @@ Player::Player(){
 	velocity.x = 0;                             // velocity X
 	velocity.y = 0;                             // velocity Y
 	radius = playerNS::WIDTH/2.0;
-	setScale(playerNS::SCALE);
+	//setScale(playerNS::SCALE);
 
 	edge.top = -playerNS::HEIGHT/2;
 	edge.bottom = playerNS::HEIGHT/2;
@@ -83,6 +83,7 @@ void Player::update(float frameTime)
 	{
 		facingDir = none;
 		setCurrentFrame(playerNS::DOWN_START);
+		setFrames(playerNS::DOWN_START, playerNS::DOWN_START);
 	}
 	if(input->isKeyDown(SPACE_KEY))
 	{

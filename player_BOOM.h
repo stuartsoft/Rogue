@@ -4,8 +4,8 @@
 #include "entity.h"
 
 namespace playerNS{
-	const int WIDTH = 64;                   // image width
-	const int HEIGHT = 64;                  // image height
+	const int WIDTH = 68;                   // image width
+	const int HEIGHT = 68;                  // image height
 	const int X = GAME_WIDTH/2 - WIDTH/2;   // location on screen
 	const int Y = GAME_HEIGHT/2 - HEIGHT/2;
 	const float MAX_HEALTH = 100.0f;
