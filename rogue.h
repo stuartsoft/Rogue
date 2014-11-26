@@ -11,7 +11,7 @@
 #include "textDX.h"
 #include "constants.h"
 #include "entity.h"
-#include "player.h"
+#include "player_BOOM.h"
 
 #include <sstream>
 

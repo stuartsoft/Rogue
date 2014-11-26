@@ -66,7 +66,7 @@ const UCHAR D_KEY		 = 0x44;
 const UCHAR E_KEY		 = 0x45;
 
 // texture images
-const char PLAYER_TEXTURE[] = "images\\player.png";
+const char PLAYER_TEXTURE[] = "images\\player1x.png";
 
 // splash screen images
 

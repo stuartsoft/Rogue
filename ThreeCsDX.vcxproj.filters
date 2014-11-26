@@ -45,7 +45,7 @@
     <ClCompile Include="rogue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="player.cpp">
+    <ClCompile Include="player_BOOM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,7 +83,7 @@
     <ClInclude Include="rogue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="player.h">
+    <ClInclude Include="player_BOOM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

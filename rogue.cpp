@@ -60,6 +60,10 @@ void Rogue::reset()
 //=============================================================================
 void Rogue::update()
 {
+	if(input->isKeyDown(ESC_KEY))
+	{
+		exitGame();
+	}
 	player.update(frameTime);
 }
 
