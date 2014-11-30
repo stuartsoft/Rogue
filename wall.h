@@ -11,7 +11,7 @@ class Wall;
 namespace WallNS
 {
     const int WIDTH = 256;                   // image width
-    const int HEIGHT = 32;                  // image height
+    const int HEIGHT = 256;                  // image height
     const int X = GAME_WIDTH/2 - WIDTH/2;   // location on screen
     const int Y = GAME_HEIGHT/2 - HEIGHT/2;
 }

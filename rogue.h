@@ -8,10 +8,10 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include "game.h"
-#include "textDX.h"
 #include "constants.h"
 #include "entity.h"
 #include "player_BOOM.h"
+#include "wall.h"
 
 #include <sstream>
 
@@ -22,6 +22,8 @@ private:
 
 	TextureManager PlayerTM;
 	Player player;
+	Wall wall[100];
+	TextureManager WallTM;
 
 public:
 	Rogue();

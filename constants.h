@@ -1,7 +1,7 @@
 // Programming 2D Games
 // Copyright (c) 2011 by: 
 // Charles Kelly
-// Three Cs DX constants.h v1.0
+// Chapter 6 constants.h v1.1
 
 #ifndef _CONSTANTS_H            // Prevent multiple definitions if this 
 #define _CONSTANTS_H            // file is included in more than one place
@@ -9,21 +9,65 @@
 
 #include <windows.h>
 
-//-----------------------------------------------
-// Useful macros
-//-----------------------------------------------
-// Safely delete pointer referenced item
-#define SAFE_DELETE(ptr)       { if (ptr) { delete (ptr); (ptr)=NULL; } }
+//=============================================================================
+// Function templates for safely dealing with pointer referenced items.
+// The functions defined by these templates may be called using a normal
+// function call syntax. The compiler will create a function that replaces T
+// with the type of the calling parameter.
+//=============================================================================
 // Safely release pointer referenced item
-#define SAFE_RELEASE(ptr)      { if(ptr) { (ptr)->Release(); (ptr)=NULL; } }
-// Safely delete pointer referenced array
-#define SAFE_DELETE_ARRAY(ptr) { if(ptr) { delete [](ptr); (ptr)=NULL; } }
-// Safely call onLostDevice
-#define SAFE_ON_LOST_DEVICE(ptr)    { if(ptr) { ptr->onLostDevice(); } }
-// Safely call onResetDevice
-#define SAFE_ON_RESET_DEVICE(ptr)   { if(ptr) { ptr->onResetDevice(); } }
-#define TRANSCOLOR  SETCOLOR_ARGB(0,255,0,255)  // transparent color (magenta)
+template <typename T>
+inline void safeRelease(T& ptr)
+{
+    if (ptr)
+    { 
+        ptr->Release(); 
+        ptr = NULL;
+    }
+}
+#define SAFE_RELEASE safeRelease            // for backward compatiblility
 
+// Safely delete pointer referenced item
+template <typename T>
+inline void safeDelete(T& ptr)
+{
+    if (ptr)
+    { 
+        delete ptr; 
+        ptr = NULL;
+    }
+}
+#define SAFE_DELETE safeDelete              // for backward compatiblility
+
+// Safely delete pointer referenced array
+template <typename T>
+inline void safeDeleteArray(T& ptr)
+{
+    if (ptr)
+    { 
+        delete[] ptr; 
+        ptr = NULL;
+    }
+}
+#define SAFE_DELETE_ARRAY safeDeleteArray   // for backward compatiblility
+
+// Safely call onLostDevice
+template <typename T>
+inline void safeOnLostDevice(T& ptr)
+{
+    if (ptr)
+        ptr->onLostDevice(); 
+}
+#define SAFE_ON_LOST_DEVICE safeOnLostDevice    // for backward compatiblility
+
+// Safely call onResetDevice
+template <typename T>
+inline void safeOnResetDevice(T& ptr)
+{
+    if (ptr)
+        ptr->onResetDevice(); 
+}
+#define SAFE_ON_RESET_DEVICE safeOnResetDevice  // for backward compatiblility
 //-----------------------------------------------
 //                  Constants
 //-----------------------------------------------
@@ -40,6 +84,8 @@ const float FRAME_RATE = 200.0f;                // the target frame rate (frames
 const float MIN_FRAME_RATE = 10.0f;             // the minimum frame rate
 const float MIN_FRAME_TIME = 1.0f/FRAME_RATE;   // minimum desired time for 1 frame
 const float MAX_FRAME_TIME = 1.0f/MIN_FRAME_RATE; // maximum time used in calculations
+
+const int NUM_WALLS = 1;
 
 
 // audio files
@@ -67,7 +113,7 @@ const UCHAR E_KEY		 = 0x45;
 
 // texture images
 const char PLAYER_TEXTURE[] = "images\\player2x.png";
-
+const char WALL_TEXTURE[] = "images\\wall2x.png";
 // splash screen images
 
 // States

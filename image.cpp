@@ -95,7 +95,7 @@ void Image::draw(COLOR_ARGB color)
 {
     if (!visible || graphics == NULL)
         return;
-    // get fresh texture incase onReset() was called
+    // get fresh texture because they may have been released
     spriteData.texture = textureManager->getTexture();
     if(color == graphicsNS::FILTER)                     // if draw with filter
         graphics->drawSprite(spriteData, colorFilter);  // use colorFilter
@@ -177,3 +177,4 @@ inline void Image::setRect()
     // bottom edge + 1
     spriteData.rect.bottom = spriteData.rect.top + spriteData.height;       
 }
+

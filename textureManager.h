@@ -1,11 +1,13 @@
 // Programming 2D Games
 // Copyright (c) 2011 by: 
 // Charles Kelly
-// textureManager.h v1.0
+// textureManager.h v1.1
 
 #ifndef _TEXTUREMANAGER_H       // Prevent multiple definitions if this 
 #define _TEXTUREMANAGER_H       // file is included in more than one place
 #define WIN32_LEAN_AND_MEAN
+
+class TextureManager;
 
 #include "graphics.h"
 #include "constants.h"
@@ -52,3 +54,4 @@ class TextureManager
 };
 
 #endif
+

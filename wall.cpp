@@ -18,14 +18,15 @@ Wall::Wall() : Entity()
     currentFrame = startFrame;
     radius = WallNS::WIDTH/2.0;                 // collision radius
     collision = false;
-	collisionType =entityNS::BOX;// entityNS::CIRCLE;
     target = false;
 	spriteData.scale = 1;
+	setScale(1.0);
 
-	edge.bottom = -WallNS::HEIGHT/2;
-	edge.top = WallNS::HEIGHT/2;
-	edge.right = -WallNS::WIDTH/2;
-	edge.left = WallNS::WIDTH/2;
+	edge.top = -WallNS::HEIGHT/2;
+	edge.bottom = WallNS::HEIGHT/2;
+	edge.left = -WallNS::WIDTH/2;
+	edge.right = WallNS::WIDTH/2;
+	collisionType = entityNS::BOX;
 }
 
 bool Wall::initialize(Game *gamePtr, int width, int height, int ncols,

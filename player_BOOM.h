@@ -29,7 +29,7 @@ namespace playerNS{
 
 class Player: public Entity{
 private:
-	direction facingDir;
+	entityNS::direction facingDir;
 public:
 	Player();
 	void Player::draw();

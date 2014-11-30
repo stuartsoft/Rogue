@@ -1,30 +1,36 @@
 // Programming 2D Games
 // Copyright (c) 2011 by: 
 // Charles Kelly
-// entity.h v1.0
+// Chapter 6 entity.h v1.3
+// Added Pixel Perfect collision function. (Mar-22-2013)
 
 #ifndef _ENTITY_H               // Prevent multiple definitions if this 
 #define _ENTITY_H               // file is included in more than one place
 #define WIN32_LEAN_AND_MEAN
 
+class Entity;
+
 #include "image.h"
 #include "input.h"
 #include "game.h"
 
-enum direction {left , right, up, down, none};
-
 namespace entityNS
 {
-    enum COLLISION_TYPE {NONE, CIRCLE, BOX, ROTATED_BOX};
+    enum COLLISION_TYPE {NONE, CIRCLE, BOX, ROTATED_BOX, PIXEL_PERFECT};
     const float GRAVITY = 6.67428e-11f;         // gravitational constant
+	enum direction {none, up, down, left, right};
 }
 
 class Entity : public Image
 {
     // Entity properties
+private:
+	VECTOR2 position;
+
   protected:
     entityNS::COLLISION_TYPE collisionType;
     VECTOR2 center;         // center of entity
+    VECTOR2 collisionCenter;    // center of collision
     float   radius;         // radius of collision circle
     VECTOR2 distSquared;    // used for calculating circle collision
     float   sumRadiiSquared;
@@ -42,33 +48,40 @@ class Entity : public Image
     float   force;          // Force of gravity
     float   gravity;        // gravitational constant of the game universe
     Input   *input;         // pointer to the input system
-    Audio   *audio;         // pointer to audio system
     HRESULT hr;             // standard return type
     bool    active;         // only active entities may collide
     bool    rotatedBoxReady;    // true when rotated collision box is ready
+    DWORD   pixelsColliding;    // number of pixels colliding in pixel perfect collision
 
     // --- The following functions are protected because they are not intended to be
     // --- called from outside the class.
     // Circular collision detection 
     // Pre: &ent = Other entity
-    // Post: &collisionVector contains collision vector
+    // Post: &collisionVector is from center to center
     virtual bool collideCircle(Entity &ent, VECTOR2 &collisionVector);
     // Axis aligned box collision detection
     // Pre: &ent = Other entity
-    // Post: &collisionVector contains collision vector
+    // Post: &collisionVector is from center to center
     virtual bool collideBox(Entity &ent, VECTOR2 &collisionVector);
     // Separating axis collision detection between boxes
     // Pre: &ent = Other entity
-    // Post: &collisionVector contains collision vector
+    // Post: &collisionVector is perpendicular to collision edge
     virtual bool collideRotatedBox(Entity &ent, VECTOR2 &collisionVector);
     // Separating axis collision detection between box and circle
     // Pre: &ent = Other entity
-    // Post: &collisionVector contains collision vector
+    // Post: &collisionVector is perpendicular to collision edge or
+    //       center to corner when collision is with box corner.
     virtual bool collideRotatedBoxCircle(Entity &ent, VECTOR2 &collisionVector);
     // Separating axis collision detection helper functions
     void computeRotatedBox();
-    bool projectionsOverlap(Entity &ent);
+    bool projectionsOverlap(Entity &ent, VECTOR2 &collisionVector);
     bool collideCornerCircle(VECTOR2 corner, Entity &ent, VECTOR2 &collisionVector);
+    // Pixel Perfect collision detection
+    // If the graphics card does not support a stencil buffer then CIRCLE
+    // collision is used.
+    // Pre: &ent = Other entity
+    // Post: &collisionVector contains collision vector
+    virtual bool collidePixelPerfect(Entity &ent, VECTOR2 &collisionVector);
 
   public:
     // Constructor
@@ -86,6 +99,16 @@ class Entity : public Image
         center = VECTOR2(getCenterX(),getCenterY());
         return &center;
     }
+
+	   virtual const VECTOR2 getCenterPoint()   
+    {
+        center = VECTOR2(getCenterX(),getCenterY());
+        return center;
+    }
+
+    // Return collision center
+    virtual const VECTOR2* getCollisionCenter()
+    { return &collisionCenter; }
 
     // Return radius of collision circle.
     virtual float getRadius() const     {return radius;}
@@ -119,6 +142,13 @@ class Entity : public Image
     // Return collision type (NONE, CIRCLE, BOX, ROTATED_BOX)
     virtual entityNS::COLLISION_TYPE getCollisionType() {return collisionType;}
 
+    // Return number of pixels colliding in pixel perfect collision
+    virtual DWORD getpixelsColliding() const {return pixelsColliding;}
+
+	VECTOR2 getPosition() {return position;}
+	float getPositionX() {return position.x;}
+	float getPositionY() {return position.y;}
+
     ////////////////////////////////////////
     //           Set functions            //
     ////////////////////////////////////////
@@ -144,9 +174,26 @@ class Entity : public Image
     // Set radius of collision circle.
     virtual void setCollisionRadius(float r)    {radius = r;}
 
-	virtual void setCollisionBox(int l, int r, int t, int b) {edge.left = l; edge.right = r; edge.top = t; edge.bottom = b;}
+    // Set collision center
+    virtual void setCollisionCenter(VECTOR2 cc) {collisionCenter = cc;}
 
-	virtual void setCollisionType(entityNS::COLLISION_TYPE t) {collisionType = t;}
+    // Set collision type (NONE, CIRCLE, BOX, ROTATED_BOX)
+    virtual void setCollisionType(entityNS::COLLISION_TYPE ctype)
+    {collisionType = ctype;}
+
+    // Set RECT structure used for BOX and ROTATED_BOX collision detection.
+    virtual void setEdge(RECT e)    {edge = e;}
+
+    // Set rotatedBoxReady. Set to false to force recalculation.
+    virtual void setRotatedBoxReady(bool r) {rotatedBoxReady = r;}
+
+	void setPosition(VECTOR2 pos) {position = pos;}
+	void setPositionX(float pos) {position.x = pos;}
+	void setPositionY(float pos) {position.y = pos;} 
+	void incPositionX(float pos) {position.x += pos;}
+	void incPositionY(float pos) {position.y += pos;}
+	void incPosition(VECTOR2 pos) {position += pos;}
+
 
     ////////////////////////////////////////
     //         Other functions            //

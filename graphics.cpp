@@ -1,7 +1,7 @@
 // Programming 2D Games
-// Copyright (c) 2011,2012 by:
+// Copyright (c) 2011,2013 by:
 // Charles Kelly
-// graphics.cpp v1.1
+// graphics.cpp v1.3
 
 
 #include "graphics.h"
@@ -15,9 +15,12 @@ Graphics::Graphics()
     device3d = NULL;
     sprite = NULL;
     fullscreen = false;
+    stencilSupport = false;
     width = GAME_WIDTH;    // width & height are replaced in initialize()
     height = GAME_HEIGHT;
     backColor = graphicsNS::BACK_COLOR;
+    //pOcclusionQuery = NULL;
+    //numberOfPixelsColliding = 0;
 }
 
 //=============================================================================
@@ -33,9 +36,10 @@ Graphics::~Graphics()
 //=============================================================================
 void Graphics::releaseAll()
 {
-    SAFE_RELEASE(sprite);
-    SAFE_RELEASE(device3d);
-    SAFE_RELEASE(direct3d);
+  /*  safeRelease(pOcclusionQuery);*/
+    safeRelease(sprite);
+    safeRelease(device3d);
+    safeRelease(direct3d);
 }
 
 //=============================================================================
@@ -93,10 +97,18 @@ void Graphics::initialize(HWND hw, int w, int h, bool full)
     if (FAILED(result))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error creating Direct3D sprite"));
 
-    // Configure for alpha blend of primitives
-    device3d->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
-    device3d->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-    device3d->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+    // Check if the device supports 8-bit stencil buffering. 
+    //if( FAILED( direct3d->CheckDeviceFormat(caps.AdapterOrdinal,
+    //                                        caps.DeviceType,  
+    //                                        d3dpp.BackBufferFormat,  
+    //                                        D3DUSAGE_DEPTHSTENCIL, 
+    //                                        D3DRTYPE_SURFACE,
+    //                                        D3DFMT_D24S8 ) ) )
+    //    stencilSupport = false;
+    //else
+    //    stencilSupport = true;
+    //// Create query object, used for pixel perfect collision detection
+    //device3d->CreateQuery(D3DQUERYTYPE_OCCLUSION, &pOcclusionQuery);
 }
 
 //=============================================================================
@@ -118,6 +130,8 @@ void Graphics::initD3Dpp()
         d3dpp.hDeviceWindow     = hwnd;
         d3dpp.Windowed          = (!fullscreen);
         d3dpp.PresentationInterval   = D3DPRESENT_INTERVAL_IMMEDIATE;
+        //d3dpp.EnableAutoDepthStencil = true;
+        //d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;    // Depth 24, Stencil 8
     } catch(...)
     {
         throw(GameError(gameErrorNS::FATAL_ERROR, 
@@ -180,122 +194,10 @@ HRESULT Graphics::loadTexture(const char *filename, COLOR_ARGB transcolor,
 }
 
 //=============================================================================
-// Load the texture into system memory (system memory is lockable)
-// Provides direct access to pixel data. Use the TextureManager class to load
-// textures for display.
-// Pre: filename is name of texture file.
-//      transcolor transparent color
-// Post: width and height = size of texture
-//       texture points to texture
-// Returns HRESULT and fills TextureData structure.
-//=============================================================================
-HRESULT Graphics::loadTextureSystemMem(const char *filename, COLOR_ARGB transcolor, 
-                                    UINT &width, UINT &height, LP_TEXTURE &texture)
-{
-    // The struct for reading bitmap file info
-    D3DXIMAGE_INFO info;
-    result = E_FAIL;        // Standard Windows return value
-
-    try{
-        if(filename == NULL)
-        {
-            texture = NULL;
-            return D3DERR_INVALIDCALL;
-        }
- 
-        // Get width and height from bitmap file
-        result = D3DXGetImageInfoFromFile(filename, &info);
-        if (result != D3D_OK)
-            return result;
-        width = info.Width;
-        height = info.Height;
-
-        // Create the new texture by loading a bitmap image file
-        result = D3DXCreateTextureFromFileEx( 
-            device3d,           //3D device
-            filename,           //bitmap filename
-            info.Width,         //bitmap image width
-            info.Height,        //bitmap image height
-            1,                  //mip-map levels (1 for no chain)
-            0,                  //usage
-            D3DFMT_UNKNOWN,     //surface format (default)
-            D3DPOOL_SYSTEMMEM,  //systemmem is lockable
-            D3DX_DEFAULT,       //image filter
-            D3DX_DEFAULT,       //mip filter
-            transcolor,         //color key for transparency
-            &info,              //bitmap file info (from loaded file)
-            NULL,               //color palette
-            &texture );         //destination texture
-
-    } catch(...)
-    {
-        throw(GameError(gameErrorNS::FATAL_ERROR, "Error in Graphics::loadTexture"));
-    }
-    return result;
-}
-
-//=============================================================================
-// Create a vertex buffer.
-// Pre: verts[] contains vertex data.
-//      size = size of verts[]
-// Post: &vertexBuffer points to buffer if successful.
-//=============================================================================
-HRESULT Graphics::createVertexBuffer(VertexC verts[], UINT size, LP_VERTEXBUFFER &vertexBuffer)
-{
-    // Standard Windows return value
-    HRESULT result = E_FAIL;
-
-    // Create a vertex buffer
-    result = device3d->CreateVertexBuffer(size, D3DUSAGE_WRITEONLY, D3DFVF_VERTEX,
-                                            D3DPOOL_DEFAULT, &vertexBuffer, NULL);
-    if(FAILED(result))
-        return result;
-
-    void *ptr;
-    // must lock buffer before data can be transferred in
-    result = vertexBuffer->Lock(0, size, (void**)&ptr, 0);
-    if(FAILED(result))
-        return result;
-    memcpy(ptr, verts, size);   // copy vertex data into buffer
-    vertexBuffer->Unlock();     // unlock buffer
-
-    return result;
-}
-
-//=============================================================================
-// Display a quad with alpha transparency using Triangle Fan
-// Pre: createVertexBuffer was used to create vertexBuffer containing four
-//      vertices defining the quad in clockwise order.
-//      g3ddev->BeginScene was called
-// Post: Quad is drawn
-//=============================================================================
-bool Graphics::drawQuad(LP_VERTEXBUFFER vertexBuffer)
-{
-    HRESULT result = E_FAIL;    // standard Windows return value
-
-    if(vertexBuffer == NULL)
-        return false;
-     
-    device3d->SetRenderState(D3DRS_ALPHABLENDENABLE, true); // enable alpha blend
-
-    device3d->SetStreamSource(0, vertexBuffer, 0, sizeof(VertexC));
-    device3d->SetFVF(D3DFVF_VERTEX);
-    result = device3d->DrawPrimitive(D3DPT_TRIANGLEFAN, 0, 2);
-
-    device3d->SetRenderState(D3DRS_ALPHABLENDENABLE, false); // alpha blend off
-    
-    if(FAILED(result))
-        return false;
-
-    return true;
-}
-
-//=============================================================================
 // Display the backbuffer
 //=============================================================================
 HRESULT Graphics::showBackbuffer()
 {
-    result = E_FAIL;    // default to fail, replace on success
     // Display backbuffer to screen
     result = device3d->Present(NULL, NULL, NULL, NULL);
     return result;
@@ -384,37 +286,6 @@ void Graphics::drawSprite(const SpriteData &spriteData, COLOR_ARGB color)
 }
 
 //=============================================================================
-// Test for lost device
-//=============================================================================
-HRESULT Graphics::getDeviceState()
-{ 
-    result = E_FAIL;    // default to fail, replace on success
-    if (device3d == NULL)
-        return  result;
-    result = device3d->TestCooperativeLevel(); 
-    return result;
-}
-
-//=============================================================================
-// Reset the graphics device
-//=============================================================================
-HRESULT Graphics::reset()
-{
-    result = E_FAIL;    // default to fail, replace on success
-    initD3Dpp();                        // init D3D presentation parameters
-    sprite->OnLostDevice();
-    result = device3d->Reset(&d3dpp);   // attempt to reset graphics device
-
-    // Configure for alpha blend of primitives
-    device3d->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
-    device3d->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-    device3d->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-
-    sprite->OnResetDevice();
-    return result;
-}
-
-//=============================================================================
 // Toggle window or fullscreen mode
 // Pre: All user created D3DPOOL_DEFAULT surfaces are freed.
 // Post: All user surfaces are recreated.
@@ -474,4 +345,88 @@ void Graphics::changeDisplayMode(graphicsNS::DISPLAY_MODE mode)
                     GAME_HEIGHT+(GAME_HEIGHT-clientRect.bottom), // Bottom
                     TRUE);                                       // Repaint the window
     }
+}
+
+//=============================================================================
+// Return the number of pixels colliding between the two sprites.
+// Pre: The device supports a stencil buffer and pOcclusionQuery points to
+// a valid occlusionQuery object.
+// Post: Returns the number of pixels of overlap
+//=============================================================================
+DWORD Graphics::pixelCollision(const SpriteData &sprite1, const SpriteData &sprite2)
+{
+    if(!stencilSupport)     // if no stencil buffer support
+        return 0;
+
+    beginScene();
+
+    // Set up stencil buffer using current entity
+    device3d->SetRenderState(D3DRS_STENCILENABLE,   true);
+    device3d->SetRenderState(D3DRS_STENCILFUNC,     D3DCMP_ALWAYS);
+    device3d->SetRenderState(D3DRS_STENCILREF,      0x1);
+    device3d->SetRenderState(D3DRS_STENCILMASK,     0xffffffff);
+    device3d->SetRenderState(D3DRS_STENCILWRITEMASK,0xffffffff);
+    device3d->SetRenderState(D3DRS_STENCILFAIL,     D3DSTENCILOP_KEEP);
+    device3d->SetRenderState(D3DRS_STENCILPASS,     D3DSTENCILOP_REPLACE);
+
+    // Write a 1 into the stencil buffer for each non-transparent pixel in ent
+    spriteBegin();
+    // Enable stencil buffer (must be after spriteBegin)
+    device3d->SetRenderState(D3DRS_STENCILENABLE,   true);
+    drawSprite(sprite2);            // write 1s to stencil buffer
+    spriteEnd();
+
+    // Change stencil buffer to only allow writes where the stencil value is 1
+    // (where the ent sprite is colliding with the current sprite)
+    device3d->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_EQUAL);
+    device3d->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_KEEP);
+    
+    // Begin occlusion query to count pixels that are drawn
+    pOcclusionQuery->Issue(D3DISSUE_BEGIN);
+
+    spriteBegin();
+    // Enable stencil buffer (must be after spriteBegin)
+    device3d->SetRenderState(D3DRS_STENCILENABLE,   true);
+    drawSprite(sprite1);            // draw current entity 
+    spriteEnd();
+    // End occlusion query
+    pOcclusionQuery->Issue(D3DISSUE_END);
+
+    // Wait until the GPU is finished.
+    while(S_FALSE == pOcclusionQuery->GetData( &numberOfPixelsColliding, 
+                                  sizeof(DWORD), D3DGETDATA_FLUSH ))
+    {}
+
+    // Turn off stencil
+    device3d->SetRenderState(D3DRS_STENCILENABLE, false);
+
+    endScene();
+    return numberOfPixelsColliding;
+}
+
+//=============================================================================
+// Test for lost device
+//=============================================================================
+HRESULT Graphics::getDeviceState()
+{ 
+    result = E_FAIL;    // default to fail, replace on success
+    if (device3d == NULL)
+        return  result;
+    result = device3d->TestCooperativeLevel(); 
+    return result;
+}
+
+//=============================================================================
+// Reset the graphics device
+//=============================================================================
+HRESULT Graphics::reset()
+{
+    safeRelease(pOcclusionQuery);       // release query
+    initD3Dpp();                        // init D3D presentation parameters
+    sprite->OnLostDevice();             // release sprite
+    result = device3d->Reset(&d3dpp);   // attempt to reset graphics device
+    // recreate query
+    device3d->CreateQuery(D3DQUERYTYPE_OCCLUSION, &pOcclusionQuery);
+    sprite->OnResetDevice();            // recreate sprite
+    return result;
 }

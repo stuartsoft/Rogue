@@ -1,7 +1,7 @@
 // Programming 2D Games
 // Copyright (c) 2011 by:
 // Charles Kelly
-// graphics.h v1.0
+// Chapter 6 graphics.h v1.4
 
 #ifndef _GRAPHICS_H             // Prevent multiple definitions if this 
 #define _GRAPHICS_H             // file is included in more than one place
@@ -10,6 +10,9 @@
 #ifdef _DEBUG
 #define D3D_DEBUG_INFO
 #endif
+
+class Graphics;
+
 #include <d3d9.h>
 #include <d3dx9.h>
 #include "constants.h"
@@ -21,11 +24,11 @@
 #define LP_3DDEVICE LPDIRECT3DDEVICE9
 #define LP_3D       LPDIRECT3D9
 #define VECTOR2     D3DXVECTOR2
-#define LP_VERTEXBUFFER LPDIRECT3DVERTEXBUFFER9
-#define LP_DXFONT   LPD3DXFONT
-#define LP_VERTEXBUFFER LPDIRECT3DVERTEXBUFFER9
 
 // Color defines
+// ARGB numbers range from 0 through 255
+// a = Alpha channel (transparency where 255 is opaque)
+// r = Red, g = Green, b = Blue
 #define COLOR_ARGB DWORD
 #define SETCOLOR_ARGB(a,r,g,b) \
     ((COLOR_ARGB)((((a)&0xff)<<24)|(((r)&0xff)<<16)|(((g)&0xff)<<8)|((b)&0xff)))
@@ -58,21 +61,10 @@ namespace graphicsNS
     const COLOR_ARGB ALPHA25 = D3DCOLOR_ARGB( 64,255,255,255);  // AND with color to get 25% alpha
     const COLOR_ARGB ALPHA50 = D3DCOLOR_ARGB(128,255,255,255);  // AND with color to get 50% alpha
     const COLOR_ARGB BACK_COLOR = NAVY;                         // background color of game
+    const COLOR_ARGB TRANSCOLOR = MAGENTA;                      // transparent color
 
     enum DISPLAY_MODE{TOGGLE, FULLSCREEN, WINDOW};
 }
-
-struct VertexC              // Vertex with Color
-{
-    float x, y, z;          // vertex location
-    float rhw;              // reciprocal homogeneous W (set to 1)
-    unsigned long color;    // vertex color
-};
-
-// Flexible Vertex Format Codes
-// D3DFVF_XYZRHW = The verticies are transformed
-// D3DFVF_DIFFUSE = The verticies contain diffuse color data 
-#define D3DFVF_VERTEX (D3DFVF_XYZRHW | D3DFVF_DIFFUSE)
 
 // SpriteData: The properties required by Graphics::drawSprite to draw a sprite
 struct SpriteData
@@ -98,11 +90,14 @@ private:
     LP_SPRITE   sprite;
     D3DPRESENT_PARAMETERS d3dpp;
     D3DDISPLAYMODE pMode;
+    IDirect3DQuery9* pOcclusionQuery;   // for pixel perfect collision detection
+    DWORD   numberOfPixelsColliding;    // for pixel perfect collision detection
 
     // other variables
     HRESULT     result;         // standard Windows return codes
     HWND        hwnd;
     bool        fullscreen;
+    bool        stencilSupport; // true if device supports stencil buffer
     int         width;
     int         height;
     COLOR_ARGB  backColor;      // background color
@@ -129,18 +124,6 @@ public:
     //      fullscreen = true for full screen, false for window
     void    initialize(HWND hw, int width, int height, bool fullscreen);
 
-    // Create a vertex buffer.
-    // Pre: verts[] contains vertex data.
-    //      size = size of verts[]
-    // Post: &vertexBuffer points to buffer if successful.
-    HRESULT createVertexBuffer(VertexC verts[], UINT size, LP_VERTEXBUFFER &vertexBuffer);
-
-    // Display a quad (rectangle) with alpha transparency.
-    // Pre: createVertexBuffer was used to create vertexBuffer containing four
-    //      vertices defining the quad in clockwise order.
-    //      g3ddev->BeginScene was called
-    bool    drawQuad(LP_VERTEXBUFFER vertexBuffer);
-
     // Load the texture into default D3D memory (normal texture use)
     // For internal engine use only. Use the TextureManager class to load game textures.
     // Pre: filename = name of texture file.
@@ -148,14 +131,6 @@ public:
     // Post: width and height = size of texture
     //       texture points to texture
     HRESULT loadTexture(const char * filename, COLOR_ARGB transcolor, UINT &width, UINT &height, LP_TEXTURE &texture);
-
-    // Load the texture into system memory (system memory is lockable)
-    // Provides direct access to pixel data. Use the TextureManager class to load textures for display.
-    // Pre: filename = name of texture file.
-    //      transcolor = transparent color
-    // Post: width and height = size of texture
-    //       texture points to texture
-    HRESULT loadTextureSystemMem(const char *filename, COLOR_ARGB transcolor, UINT &width, UINT &height, LP_TEXTURE &texture);
 
     // Display the offscreen backbuffer to the screen.
     HRESULT showBackbuffer();
@@ -197,25 +172,37 @@ public:
     // Transform vector v with matrix m.
     static VECTOR2* Vector2Transform(VECTOR2 *v, D3DXMATRIX *m) {return D3DXVec2TransformCoord(v,v,m);}
 
+    // Return the number of pixels colliding between the two sprites.
+    // Pre: The device supports a stencil buffer and pOcclusionQuery points to
+    // a valid occlusionQuery object.
+    // Post: Returns the number of pixels of overlap
+    DWORD pixelCollision(const SpriteData &sprite1, const SpriteData &sprite2);
+
     // get functions
     // Return direct3d.
-    LP_3D   get3D()             { return direct3d; }
+    LP_3D get3D()               { return direct3d; }
 
     // Return device3d.
     LP_3DDEVICE get3Ddevice()   { return device3d; }
 
     // Return sprite
-    LP_SPRITE   getSprite()     { return sprite; }
+    LP_SPRITE getSprite()       { return sprite; }
 
     // Return handle to device context (window).
-    HDC     getDC()             { return GetDC(hwnd); }
+    HDC getDC()                 { return GetDC(hwnd); }
 
     // Test for lost device
     HRESULT getDeviceState();
 
     // Return fullscreen
-    bool    getFullscreen()     { return fullscreen; }
- 
+    bool getFullscreen()        { return fullscreen; }
+
+    // Return pOcclusionQuery
+    IDirect3DQuery9* getPOcclusionQuery()   { return pOcclusionQuery; }
+
+    // Returns true if the graphics card supports a stencil buffer
+    bool getStencilSupport()    { return stencilSupport; }
+
     // Set color used to clear screen
     void setBackColor(COLOR_ARGB c) {backColor = c;}
 
@@ -227,8 +214,13 @@ public:
         result = E_FAIL;
         if(device3d == NULL)
             return result;
-        // clear backbuffer to backColor
-        device3d->Clear(0, NULL, D3DCLEAR_TARGET, backColor, 1.0F, 0);
+        // Clear back buffer, stencil buffer and depth buffer
+       
+		device3d->Clear(0, NULL, D3DCLEAR_TARGET, backColor, 1.0F, 0);
+		/*device3d->Clear(0, 0, 
+            D3DCLEAR_TARGET | D3DCLEAR_STENCIL | D3DCLEAR_ZBUFFER,
+            backColor, 1.0f, 0);*/
+
         result = device3d->BeginScene();          // begin scene for drawing
         return result;
     }

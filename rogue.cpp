@@ -43,6 +43,15 @@ void Rogue::initialize(HWND hwnd)
 	player.setX(0);
 	player.setY(0);
 
+	if(!WallTM.initialize(graphics,WALL_TEXTURE))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init player texture"));
+   for (int i=0;i<NUM_WALLS;i++){
+	   if (!wall[i].initialize(this, WallNS::WIDTH, WallNS::HEIGHT, 0, &WallTM))
+		   throw(GameError(gameErrorNS::WARNING, "wall not initialized"));
+	   wall[i].setX(100);
+	   wall[i].setY(0);
+   }
+	
 	return;
 }
 
@@ -65,6 +74,10 @@ void Rogue::update()
 		exitGame();
 	}
 	player.update(frameTime);
+	for (int i=0;i<NUM_WALLS;i++){
+		wall[i].update(frameTime);
+	}
+
 }
 
 //=============================================================================
@@ -75,6 +88,9 @@ void Rogue::render()
 	graphics->spriteBegin();
 
 	player.draw();
+	for (int i=0;i<NUM_WALLS;i++){
+		wall[i].draw();
+	}
 
 	graphics->spriteEnd();
 }
@@ -93,6 +109,16 @@ void Rogue::ai()
 //==================================================================
 void Rogue::collisions()
 {
+
+	VECTOR2 collisionVector = D3DXVECTOR2(0,0);
+
+	for (int i=0;i< NUM_WALLS;i++){
+		if (wall[i].collidesWith(player, collisionVector)){
+			player.setPositionX(player.getPositionX() - player.getVelocity().x* frameTime);
+			player.setPositionY(player.getPositionY() - player.getVelocity().y* frameTime);
+		}
+
+	}
 	
 }
 

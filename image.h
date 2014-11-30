@@ -1,11 +1,13 @@
 // Programming 2D Games
 // Copyright (c) 2011 by: 
 // Charles Kelly
-// image.h v1.2
+// image.h v1.3
 
 #ifndef _IMAGE_H                // Prevent multiple definitions if this 
 #define _IMAGE_H                // file is included in more than one place
 #define WIN32_LEAN_AND_MEAN
+
+class Image;
 
 #include "textureManager.h"
 #include "constants.h"
@@ -42,7 +44,7 @@ class Image
     ////////////////////////////////////////
 
     // Return reference to SpriteData structure.
-    const virtual SpriteData& getSpriteInfo() {return spriteData;}
+    const virtual SpriteData& getSpriteData() {return spriteData;}
 
     // Return visible parameter.
     virtual bool  getVisible()  {return visible;}
@@ -178,3 +180,4 @@ class Image
 };
 
 #endif
+
