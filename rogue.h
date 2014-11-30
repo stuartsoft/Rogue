@@ -12,6 +12,7 @@
 #include "entity.h"
 #include "player_BOOM.h"
 #include "wall.h"
+#include "crate.h"
 
 #include <sstream>
 
@@ -24,6 +25,8 @@ private:
 	Player player;
 	Wall wall[100];
 	TextureManager WallTM;
+	Crate crate[100];
+	TextureManager CrateTM;
 
 public:
 	Rogue();

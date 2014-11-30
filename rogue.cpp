@@ -34,7 +34,7 @@ Rogue::~Rogue()
 void Rogue::initialize(HWND hwnd)
 {
 	Game::initialize(hwnd);
-	graphics->setBackColor(0xFFFFFF);
+	graphics->setBackColor(0x8888FF);
 	if(!PlayerTM.initialize(graphics,PLAYER_TEXTURE))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init player texture"));
 	if(!player.initialize(this, playerNS::WIDTH, playerNS::HEIGHT, playerNS::TEXTURE_COL, &PlayerTM))
@@ -45,13 +45,22 @@ void Rogue::initialize(HWND hwnd)
 
 	if(!WallTM.initialize(graphics,WALL_TEXTURE))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init player texture"));
-   for (int i=0;i<NUM_WALLS;i++){
-	   if (!wall[i].initialize(this, WallNS::WIDTH, WallNS::HEIGHT, 0, &WallTM))
-		   throw(GameError(gameErrorNS::WARNING, "wall not initialized"));
-	   wall[i].setX(400*i+100);
-	   wall[i].setY(0);
-   }
-	
+	for (int i=0;i<NUM_WALLS;i++){
+		if (!wall[i].initialize(this, WallNS::WIDTH, WallNS::HEIGHT, 0, &WallTM))
+			throw(GameError(gameErrorNS::WARNING, "wall not initialized"));
+		wall[i].setX(400*i+100);
+		wall[i].setY(0);
+	}
+
+	if(!CrateTM.initialize(graphics,"images\\crate2x.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init player texture"));
+	for (int i=0;i<NUM_WALLS;i++){
+		if (!crate[i].initialize(this, CrateNS::WIDTH, CrateNS::HEIGHT, 0, &CrateTM))
+			throw(GameError(gameErrorNS::WARNING, "wall not initialized"));
+		crate[i].setPositionX(400*i+100);
+		crate[i].setPositionY(500);
+	}
+
 	return;
 }
 
@@ -78,6 +87,11 @@ void Rogue::update()
 		wall[i].update(frameTime);
 	}
 
+	for (int i=0;i<NUM_CRATES;i++){
+		crate[i].update(frameTime);
+	}
+
+
 }
 
 //=============================================================================
@@ -91,6 +105,10 @@ void Rogue::render()
 	for (int i=0;i<NUM_WALLS;i++){
 		wall[i].draw();
 	}
+	
+	for (int i=0;i<NUM_CRATES;i++){
+		crate[i].draw();
+	}
 
 	graphics->spriteEnd();
 }
@@ -101,7 +119,7 @@ void Rogue::render()
 //=============================
 void Rogue::ai()
 {
-	
+
 }
 
 //==================================================================
@@ -109,7 +127,6 @@ void Rogue::ai()
 //==================================================================
 void Rogue::collisions()
 {
-
 	VECTOR2 collisionVector = D3DXVECTOR2(0,0);
 
 	for (int i=0;i< NUM_WALLS;i++){
@@ -117,9 +134,14 @@ void Rogue::collisions()
 			player.setPositionX(player.getPositionX() - player.getVelocity().x* frameTime);
 			player.setPositionY(player.getPositionY() - player.getVelocity().y* frameTime);
 		}
-
 	}
-	
+
+	for (int i=0;i< NUM_CRATES;i++){
+		if (crate[i].collidesWith(player, collisionVector)){
+			crate[i].setVelocity(player.getVelocity()*1.5);
+		}
+	}
+
 }
 
 //=============================================================================
