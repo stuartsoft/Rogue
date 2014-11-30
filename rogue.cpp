@@ -48,7 +48,7 @@ void Rogue::initialize(HWND hwnd)
    for (int i=0;i<NUM_WALLS;i++){
 	   if (!wall[i].initialize(this, WallNS::WIDTH, WallNS::HEIGHT, 0, &WallTM))
 		   throw(GameError(gameErrorNS::WARNING, "wall not initialized"));
-	   wall[i].setX(100);
+	   wall[i].setX(400*i+100);
 	   wall[i].setY(0);
    }
 	

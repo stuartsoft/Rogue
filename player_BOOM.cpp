@@ -16,8 +16,8 @@ Player::Player(){
 
 	edge.top = -playerNS::HEIGHT/2;
 	edge.bottom = playerNS::HEIGHT/2;
-	edge.left = -playerNS::WIDTH/2;
-	edge.right = playerNS::WIDTH/2;
+	edge.left = -20;
+	edge.right = 20;
 	collisionType = entityNS::BOX;
 
 	health = playerNS::MAX_HEALTH;
@@ -44,6 +44,7 @@ void Player::update(float frameTime)
 			facingDir = entityNS::direction::up;
 			setFrames(playerNS::UP_START,playerNS::UP_END);
 			setCurrentFrame(playerNS::UP_START +1);
+
 		}
 	}
 	if(input->isKeyDown(S_KEY))
@@ -99,6 +100,15 @@ void Player::update(float frameTime)
 
 	//update position based on velocity changes
 	incPosition(D3DXVECTOR2(velocity*frameTime));
+	
+    if (getPositionX() > GAME_WIDTH-getWidth()*getScale()) 
+		setPositionX(GAME_WIDTH-getWidth()*getScale()); 
+    if (getPositionX() < 0) 
+        setPositionX(0);
+	if (getPositionY() > GAME_HEIGHT-getHeight()*getScale())
+		setPositionY(GAME_HEIGHT-getHeight()*getScale());
+	if (getPositionY() < 0)
+		setPositionY(0);
 
 	//apply new position
 	spriteData.x = getPositionX();
