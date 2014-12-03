@@ -38,6 +38,17 @@ bool Wall::initialize(Game *gamePtr, int width, int height, int ncols,
 
 }
 
+
+void Wall::draw(VECTOR2 cam)
+{
+	spriteData.x += cam.x;
+	spriteData.y += cam.y;
+	Image::draw();
+	spriteData.x -= cam.x;
+	spriteData.y -= cam.y;
+}
+
+
 //=============================================================================
 // update
 // typically called once per frame

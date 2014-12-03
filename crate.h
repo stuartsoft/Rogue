@@ -35,6 +35,8 @@ public:
                             TextureManager *textureM);
     void update(float frameTime);
 
+	void draw(VECTOR2 cam);
+
     // Set collision Boolean
     void setCollision(bool c)
     {collision = c;}

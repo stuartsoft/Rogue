@@ -32,7 +32,7 @@ private:
 	entityNS::direction facingDir;
 public:
 	Player();
-	void Player::draw();
+	void Player::draw(VECTOR2 cam);
 	void Player::update(float frameTime);
 };
 

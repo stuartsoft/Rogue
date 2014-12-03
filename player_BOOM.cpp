@@ -25,9 +25,13 @@ Player::Player(){
 	facingDir = entityNS::direction::none;
 }
 
-void Player::draw()
+void Player::draw(VECTOR2 cam)
 {
+	spriteData.x += cam.x;
+	spriteData.y += cam.y;
 	Image::draw();              // draw Player
+	spriteData.x -= cam.x;
+	spriteData.y -= cam.y;
 }
 
 void Player::update(float frameTime)
@@ -91,7 +95,8 @@ void Player::update(float frameTime)
 		inputDir *= playerNS::SPEED/2;
 		setFrameDelay(playerNS::FRAME_DELAY/0.3f);
 	}
-	else{
+	else
+	{
 		setFrameDelay(playerNS::FRAME_DELAY);
 		inputDir *= playerNS::SPEED;
 	}
@@ -101,7 +106,7 @@ void Player::update(float frameTime)
 	//update position based on velocity changes
 	incPosition(D3DXVECTOR2(velocity*frameTime));
 	
-    if (getPositionX() > GAME_WIDTH-getWidth()*getScale()) 
+/*    if (getPositionX() > GAME_WIDTH-getWidth()*getScale()) 
 		setPositionX(GAME_WIDTH-getWidth()*getScale()); 
     if (getPositionX() < 0) 
         setPositionX(0);
@@ -109,7 +114,7 @@ void Player::update(float frameTime)
 		setPositionY(GAME_HEIGHT-getHeight()*getScale());
 	if (getPositionY() < 0)
 		setPositionY(0);
-
+*/
 	//apply new position
 	spriteData.x = getPositionX();
 	spriteData.y = getPositionY();

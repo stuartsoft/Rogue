@@ -27,6 +27,8 @@ private:
 	TextureManager WallTM;
 	Crate crate[100];
 	TextureManager CrateTM;
+	
+	VECTOR2 camera;
 
 public:
 	Rogue();

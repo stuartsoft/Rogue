@@ -61,6 +61,10 @@ void Rogue::initialize(HWND hwnd)
 		crate[i].setPositionY(500);
 	}
 
+
+	camera.x = 0;
+	camera.y = 0;
+
 	return;
 }
 
@@ -83,10 +87,12 @@ void Rogue::update()
 		exitGame();
 	}
 	player.update(frameTime);
+	camera.x = GAME_WIDTH/2 - player.getCenterX();
+	camera.y = GAME_HEIGHT/2 - player.getCenterY();
+
 	for (int i=0;i<NUM_WALLS;i++){
 		wall[i].update(frameTime);
 	}
-
 	for (int i=0;i<NUM_CRATES;i++){
 		crate[i].update(frameTime);
 	}
@@ -101,13 +107,12 @@ void Rogue::render()
 {
 	graphics->spriteBegin();
 
-	player.draw();
+	player.draw(camera);
 	for (int i=0;i<NUM_WALLS;i++){
-		wall[i].draw();
+		wall[i].draw(camera);
 	}
-	
 	for (int i=0;i<NUM_CRATES;i++){
-		crate[i].draw();
+		crate[i].draw(camera);
 	}
 
 	graphics->spriteEnd();
