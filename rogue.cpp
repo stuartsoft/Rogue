@@ -60,10 +60,17 @@ void Rogue::initialize(HWND hwnd)
 		crate[i].setPositionX(400*i+100);
 		crate[i].setPositionY(500);
 	}
+	
+	graphics->setBackColor(graphicsNS::GRAY);
 
+	menu = new Menu();
+	menu->initialize(graphics, input);
 
 	camera.x = 0;
 	camera.y = 0;
+
+	gameState = MAIN_MENU;
+	timeInState = 0;
 
 	return;
 }
@@ -76,27 +83,56 @@ void Rogue::reset()
 	return;
 }
 
+void Rogue::gameStateUpdate(float f)
+{
+	timeInState += f;
+
+	if(gameState == MAIN_MENU && timeInState > 0.5f && input->isKeyDown(ENTER_KEY) && menu->getSelectedItem() == 0)
+	{
+		gameState = LEVEL1;
+		timeInState = 0;
+	}
+
+}
+
 //=============================================================================
 // move all game items
 // frameTime is used to regulate the speed of movement
 //=============================================================================
 void Rogue::update()
 {
+	gameStateUpdate(frameTime);
 	if(input->isKeyDown(ESC_KEY))
 	{
 		exitGame();
 	}
-	player.update(frameTime);
-	camera.x = GAME_WIDTH/2 - player.getCenterX();
-	camera.y = GAME_HEIGHT/2 - player.getCenterY();
 
-	for (int i=0;i<NUM_WALLS;i++){
-		wall[i].update(frameTime);
-	}
-	for (int i=0;i<NUM_CRATES;i++){
-		crate[i].update(frameTime);
-	}
+	switch(gameState)
+	{
+	case MAIN_MENU:
+		menu->update();
 
+		if(input->isKeyDown(ENTER_KEY) && menu->getSelectedItem() == 3)
+		{
+			exitGame();
+		}
+
+		break;
+	case LEVEL1:
+
+		player.update(frameTime);
+		camera.x = GAME_WIDTH/2 - player.getCenterX();
+		camera.y = GAME_HEIGHT/2 - player.getCenterY();
+	
+		for (int i=0;i<NUM_WALLS;i++){
+			wall[i].update(frameTime);
+		}
+		for (int i=0;i<NUM_CRATES;i++){
+			crate[i].update(frameTime);
+		}
+
+		break;
+	}
 
 }
 
@@ -107,13 +143,26 @@ void Rogue::render()
 {
 	graphics->spriteBegin();
 
-	player.draw(camera);
-	for (int i=0;i<NUM_WALLS;i++){
-		wall[i].draw(camera);
+	switch(gameState)
+	{
+	case MAIN_MENU:
+		menu->displayMenu();
+
+		break;
+	case LEVEL1:
+
+		player.draw(camera);
+		for (int i=0;i<NUM_WALLS;i++){
+			wall[i].draw(camera);
+		}
+		for (int i=0;i<NUM_CRATES;i++){
+			crate[i].draw(camera);
+		}
+
+		break;
 	}
-	for (int i=0;i<NUM_CRATES;i++){
-		crate[i].draw(camera);
-	}
+
+	
 
 	graphics->spriteEnd();
 }
@@ -156,6 +205,8 @@ void Rogue::collisions()
 void Rogue::releaseAll()
 {
 	PlayerTM.onLostDevice();
+	WallTM.onLostDevice();
+	CrateTM.onLostDevice();
 	Game::releaseAll();
 	return;
 }
@@ -167,6 +218,8 @@ void Rogue::releaseAll()
 void Rogue::resetAll()
 {
 	PlayerTM.onResetDevice();
+	WallTM.onResetDevice();
+	WallTM.onResetDevice();
 	Game::resetAll();
 	return;
 }

@@ -115,9 +115,11 @@ const UCHAR E_KEY		 = 0x45;
 // texture images
 const char PLAYER_TEXTURE[] = "images\\player2x.png";
 const char WALL_TEXTURE[] = "images\\wall2x.png";
+
 // splash screen images
 
+
 // States
-enum GameStates {};
+enum GameStates {MAIN_MENU, LEVEL1, LEVEL2, LEVEL3, GAME_OVER, GAME_WIN};
 
 #endif

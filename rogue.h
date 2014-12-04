@@ -13,6 +13,7 @@
 #include "player_BOOM.h"
 #include "wall.h"
 #include "crate.h"
+#include "menu.h"
 
 #include <sstream>
 
@@ -30,11 +31,18 @@ private:
 	
 	VECTOR2 camera;
 
+	GameStates gameState;
+	float timeInState;
+
+	Menu* menu;
+
+
 public:
 	Rogue();
 	virtual ~Rogue();
 	void initialize(HWND hwnd);
 	void reset();
+	void gameStateUpdate(float f);
 	void update();
 	void ai();
 	void collisions();

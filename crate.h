@@ -1,5 +1,3 @@
-
-              // file is included in more than one place
 #define WIN32_LEAN_AND_MEAN
 #ifndef CRATE_H                 // Prevent multiple definitions if this 
 #define CRATE_H   
