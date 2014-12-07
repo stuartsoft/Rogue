@@ -32,5 +32,10 @@ void Guard::draw(VECTOR2 cam){
 }
 
 void Guard::update(float frameTime){
+	Entity::update(frameTime);
+
+	incPosition(D3DXVECTOR2(velocity*frameTime));
+	spriteData.x = getPositionX();
+	spriteData.y = getPositionY();
 
 }

@@ -53,14 +53,23 @@ void Rogue::initialize(HWND hwnd)
 	}
 
 	if(!CrateTM.initialize(graphics,"images\\crate2x.png"))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init player texture"));
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init guard texture"));
 	for (int i=0;i<NUM_WALLS;i++){
 		if (!crate[i].initialize(this, CrateNS::WIDTH, CrateNS::HEIGHT, 0, &CrateTM))
-			throw(GameError(gameErrorNS::WARNING, "wall not initialized"));
+			throw(GameError(gameErrorNS::WARNING, "guard not initialized"));
 		crate[i].setPositionX(400*i+100);
 		crate[i].setPositionY(500);
 	}
 	
+	if(!GuardTM.initialize(graphics, "images\\guard2x.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init guard texture"));
+	for (int i=0;i<NUM_GUARDS;i++){
+		if (!guard[i].initialize(this, guardNS::WIDTH, guardNS::HEIGHT, 0, &GuardTM))
+			throw(GameError(gameErrorNS::WARNING, "guard not initialized"));
+		guard[i].setPositionX(400*i+100);
+		guard[i].setPositionY(300);
+	}
+
 	graphics->setBackColor(graphicsNS::GRAY);
 
 	menu = new Menu();
@@ -132,6 +141,9 @@ void Rogue::update()
 		for (int i=0;i<NUM_CRATES;i++){
 			crate[i].update(frameTime);
 		}
+		for (int i=0;i<NUM_GUARDS;i++){
+			guard[i].update(frameTime);
+		}
 
 		break;
 	}
@@ -159,6 +171,9 @@ void Rogue::render()
 		}
 		for (int i=0;i<NUM_CRATES;i++){
 			crate[i].draw(camera);
+		}
+		for (int i=0;i<NUM_GUARDS;i++){
+			guard[i].draw(camera);
 		}
 
 		break;

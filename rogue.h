@@ -14,6 +14,7 @@
 #include "wall.h"
 #include "crate.h"
 #include "menu.h"
+#include "guard.h"
 
 #include <sstream>
 
@@ -24,9 +25,10 @@ private:
 
 	TextureManager PlayerTM;
 	Player player;
+	Guard guard[100];
 	Wall wall[100];
 	TextureManager WallTM;
-	TextureManager EnemyTM;
+	TextureManager GuardTM;
 	Crate crate[100];
 	TextureManager CrateTM;
 	

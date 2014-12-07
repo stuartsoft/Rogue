@@ -87,6 +87,7 @@ const float MAX_FRAME_TIME = 1.0f/MIN_FRAME_RATE; // maximum time used in calcul
 
 const int NUM_WALLS = 3;
 const int NUM_CRATES = 3;
+const int NUM_GUARDS = 3;
 
 
 // audio files
