@@ -57,6 +57,9 @@
     <ClCompile Include="textDX.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="guard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio.h">
@@ -102,6 +105,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="textDX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="guard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

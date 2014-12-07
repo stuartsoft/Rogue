@@ -192,7 +192,7 @@ void Rogue::collisions()
 
 	for (int i=0;i< NUM_CRATES;i++){
 		if (crate[i].collidesWith(player, collisionVector)){
-			crate[i].setVelocity(player.getVelocity()*1.5);
+			crate[i].setVelocity(player.getVelocity()*2.5);
 		}
 	}
 

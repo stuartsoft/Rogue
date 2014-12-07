@@ -35,7 +35,6 @@ bool Crate::initialize(Game *gamePtr, int width, int height, int ncols,
 	directionY = -1;
 	directionX = 1;
     return(Entity::initialize(gamePtr, width, height, ncols, textureM));
-
 }
 
 
@@ -57,6 +56,15 @@ void Crate::draw(VECTOR2 cam)
 void Crate::update(float frameTime)
 {
     Entity::update(frameTime);
+	if (velocity.x!=0.0f || velocity.y !=0.0f){
+		velocity.x *=0.99;
+		velocity.y *=0.99;
+	}
+	if (abs(velocity.x)<0.01)
+		velocity.x = 0.0f;
+	if (abs(velocity.y)<0.01)
+		velocity.y = 0.0f;
+
 	//update position based on velocity changes
 	incPosition(D3DXVECTOR2(velocity*frameTime));
 	
