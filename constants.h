@@ -89,6 +89,9 @@ const int NUM_WALLS = 3;
 const int NUM_CRATES = 3;
 const int NUM_GUARDS = 3;
 
+const float ALERT_DURATION = 5.0f;
+const float WALKING_NOISE = 500.0f;
+const float SNEAKING_NOISE = 200.0f;
 
 // audio files
 const char WAVE_BANK[] = "Sound\\Win\\Wave Bank.xwb";

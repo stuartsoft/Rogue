@@ -31,10 +31,15 @@ namespace guardNS{
 class Guard: public Entity{
 private:
 	entityNS::direction facingDir;
+	Entity* target;
 public:
 	Guard();
+
+	void setTarget(Entity* t){target = t;}
+
 	void Guard::draw(VECTOR2 cam);
 	void Guard::update(float frameTime);
+	void Guard::ai(bool alert);
 };
 
 #endif

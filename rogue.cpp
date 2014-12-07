@@ -63,11 +63,13 @@ void Rogue::initialize(HWND hwnd)
 	
 	if(!GuardTM.initialize(graphics, "images\\guard2x.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init guard texture"));
-	for (int i=0;i<NUM_GUARDS;i++){
-		if (!guard[i].initialize(this, guardNS::WIDTH, guardNS::HEIGHT, 0, &GuardTM))
+	for (int i=0;i<NUM_GUARDS;i++)
+	{
+		if (!guard[i].initialize(this, guardNS::WIDTH, guardNS::HEIGHT, guardNS::TEXTURE_COL, &GuardTM))
 			throw(GameError(gameErrorNS::WARNING, "guard not initialized"));
 		guard[i].setPositionX(400*i+100);
 		guard[i].setPositionY(300);
+		guard[i].setTarget(&player);
 	}
 
 	graphics->setBackColor(graphicsNS::GRAY);
@@ -81,6 +83,10 @@ void Rogue::initialize(HWND hwnd)
 	gameState = MAIN_MENU;
 	timeInState = 0;
 	time(&tsoundfx);
+
+	alert = false;
+	alertTime = 0.0f;
+	playerNoise = 0.0f;
 
 	return;
 }
@@ -134,7 +140,21 @@ void Rogue::update()
 		player.update(frameTime);
 		camera.x = GAME_WIDTH/2 - player.getCenterX();
 		camera.y = GAME_HEIGHT/2 - player.getCenterY();
-	
+		
+		if(player.getVelocity() != VECTOR2(0,0))
+		{
+			playerNoise = D3DXVec2Length(&player.getVelocity()) * 2.5f;
+		}
+
+		if(alert)
+		{
+			alertTime += frameTime;
+			if(alertTime >= ALERT_DURATION)
+			{
+				alert = false;
+			}
+		}
+
 		for (int i=0;i<NUM_WALLS;i++){
 			wall[i].update(frameTime);
 		}
@@ -187,7 +207,10 @@ void Rogue::render()
 //=============================
 void Rogue::ai()
 {
-
+	for (int i=0;i<NUM_GUARDS;i++)
+	{
+		guard[i].ai(alert);
+	}
 }
 
 //==================================================================
@@ -213,6 +236,17 @@ void Rogue::collisions()
 			crate[i].setVelocity(player.getVelocity()*2.5);
 		}
 	}
+
+	for(int i=0; i<NUM_GUARDS; i++)
+	{
+		VECTOR2 dist = *guard[i].getCenter()-*player.getCenter();
+		if(D3DXVec2Length(&dist) < playerNoise)
+		{
+			alert = true;
+			alertTime = 0.0f;
+		}
+	}
+
 
 }
 
