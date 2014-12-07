@@ -26,6 +26,7 @@ private:
 	Player player;
 	Wall wall[100];
 	TextureManager WallTM;
+	TextureManager EnemyTM;
 	Crate crate[100];
 	TextureManager CrateTM;
 	
@@ -33,7 +34,8 @@ private:
 
 	GameStates gameState;
 	float timeInState;
-
+	time_t tsoundfx;
+	time_t tnow;
 	Menu* menu;
 
 

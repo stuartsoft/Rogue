@@ -71,6 +71,7 @@ void Rogue::initialize(HWND hwnd)
 
 	gameState = MAIN_MENU;
 	timeInState = 0;
+	time(&tsoundfx);
 
 	return;
 }
@@ -102,6 +103,7 @@ void Rogue::gameStateUpdate(float f)
 void Rogue::update()
 {
 	gameStateUpdate(frameTime);
+	time(&tnow);//update current time varaible
 	if(input->isKeyDown(ESC_KEY))
 	{
 		exitGame();
@@ -161,9 +163,6 @@ void Rogue::render()
 
 		break;
 	}
-
-	
-
 	graphics->spriteEnd();
 }
 
@@ -187,6 +186,10 @@ void Rogue::collisions()
 		if (wall[i].collidesWith(player, collisionVector)){
 			player.setPositionX(player.getPositionX() - player.getVelocity().x* frameTime);
 			player.setPositionY(player.getPositionY() - player.getVelocity().y* frameTime);
+			if(difftime(tnow,tsoundfx) >0.075){
+				audio->playCue("Bump");
+				time(&tsoundfx);
+			}
 		}
 	}
 

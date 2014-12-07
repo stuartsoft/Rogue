@@ -55,14 +55,21 @@ void Crate::draw(VECTOR2 cam)
 //=============================================================================
 void Crate::update(float frameTime)
 {
+	float DragConstant = 3.0f;
     Entity::update(frameTime);
-	if (velocity.x!=0.0f || velocity.y !=0.0f){
-		velocity.x *=0.99;
-		velocity.y *=0.99;
+	if (abs(velocity.x)>2.0f || abs(velocity.y)>2.0f){
+		if(velocity.x>0)
+			velocity.x-=DragConstant;
+		else
+			velocity.x+=DragConstant;
+		if (velocity.y>0)
+			velocity.y-=DragConstant;
+		else
+			velocity.y+=DragConstant;
 	}
-	if (abs(velocity.x)<0.01)
+	if (abs(velocity.x)<DragConstant*2 && abs(velocity.x)>0.01f)
 		velocity.x = 0.0f;
-	if (abs(velocity.y)<0.01)
+	if (abs(velocity.y)<DragConstant*2 && abs(velocity.y)>0.01f)
 		velocity.y = 0.0f;
 
 	//update position based on velocity changes
