@@ -11,7 +11,7 @@ namespace playerNS{
 	const float MAX_HEALTH = 100.0f;
 	const int MAX_SPEED_X = 750;
 	const int MAX_SPEED_Y = 750;
-	const int SPEED = 150;
+	const int SPEED = 200;
 
 	const int TEXTURE_COL = 4;
 	const float SCALE = 1.0f;

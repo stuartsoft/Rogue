@@ -146,7 +146,7 @@ void Rogue::update()
 		
 		if(player.getVelocity() != VECTOR2(0,0))
 		{
-			playerNoise = D3DXVec2Length(&player.getVelocity()) * 2.5f;
+			playerNoise = D3DXVec2Length(&player.getVelocity()) * 1.5f;
 		}
 
 		if(alert)

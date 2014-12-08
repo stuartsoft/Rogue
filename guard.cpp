@@ -103,7 +103,7 @@ void Guard::ai(bool alert)
 	}
 	else
 	{
-
+		setVelocity(VECTOR2(0,0));
 	}
 	
 }
