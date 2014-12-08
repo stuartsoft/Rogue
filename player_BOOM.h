@@ -30,10 +30,12 @@ namespace playerNS{
 class Player: public Entity{
 private:
 	entityNS::direction facingDir;
+	D3DXVECTOR2 lastmovevel;//last movement velocity
 public:
 	Player();
 	void Player::draw(VECTOR2 cam);
 	void Player::update(float frameTime);
+	D3DXVECTOR2 getlastmovevel(){return lastmovevel;};
 };
 
 #endif

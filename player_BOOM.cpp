@@ -19,7 +19,6 @@ Player::Player(){
 	edge.left = -20;
 	edge.right = 20;
 	collisionType = entityNS::BOX;
-
 	health = playerNS::MAX_HEALTH;
 
 	facingDir = entityNS::direction::none;

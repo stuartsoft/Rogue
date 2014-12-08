@@ -246,6 +246,31 @@ void Rogue::collisions()
 		if (crate[i].collidesWith(player, collisionVector)){
 			crate[i].setVelocity(player.getVelocity()*2.5);
 		}
+		for (int j=0;j<NUM_WALLS;j++){
+			if(crate[i].collidesWith(wall[j], collisionVector)){
+				//calculate elastic collision physics here
+				float m1 = crate[i].getMass();
+				float m2 = 1000.0f;
+				VECTOR2 vi1 = crate[i].getVelocity();
+				VECTOR2 vi2 = D3DXVECTOR2(0,0);
+
+				float vxf1 = (vi1.x *(m1-m2) +2*m2*vi2.x)/(m1+m2);
+				float vyf1 = (vi1.y *(m1-m2) +2*m2*vi2.y)/(m1+m2);
+
+				VECTOR2 vf1 = D3DXVECTOR2(vxf1,vyf1);
+
+				
+				crate[i].setPositionX(crate[i].getPositionX() - crate[i].getVelocity().x*frameTime);
+				crate[i].setPositionY(crate[i].getPositionY() - crate[i].getVelocity().y*frameTime);
+
+				crate[i].setVelocity(D3DXVECTOR2(0,0));
+				crate[i].setVelocity(vf1);
+						
+				crate[i].CollidedThisFrame = true;
+			}
+
+		}
+
 	}
 
 	if(gameState == LEVEL1){
@@ -267,11 +292,6 @@ void Rogue::collisions()
 
 						VECTOR2 vf1 = D3DXVECTOR2(vxf1,vyf1);
 						VECTOR2 vf2 = D3DXVECTOR2(vxf2,vyf2);
-						
-						/*crate[i].setPositionX(crate[i].getPositionX() - crate[i].getVelocity().x*frameTime);
-						crate[i].setPositionY(crate[i].getPositionY() - crate[i].getVelocity().y*frameTime);
-						crate[j].setPositionX(crate[j].getPositionX() - crate[j].getVelocity().x*frameTime);
-						crate[j].setPositionY(crate[j].getPositionY() - crate[j].getVelocity().y*frameTime);*/
 
 						crate[i].setVelocity(D3DXVECTOR2(0,0));
 						crate[j].setVelocity(D3DXVECTOR2(0,0));
