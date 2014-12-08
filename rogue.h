@@ -27,6 +27,7 @@ private:
 	Player player;
 	Guard guard[100];
 	Wall wall[100];
+	TextureManager temptm;
 	TextureManager WallTM;
 	TextureManager GuardTM;
 	Crate crate[100];

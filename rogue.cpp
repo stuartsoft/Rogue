@@ -54,13 +54,16 @@ void Rogue::initialize(HWND hwnd)
 
 	if(!CrateTM.initialize(graphics,"images\\crate2x.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init guard texture"));
+	if (!temptm.initialize(graphics,"images\\crate2xpurple.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "error"));
+
 	for (int i=0;i<NUM_WALLS;i++){
 		if (!crate[i].initialize(this, CrateNS::WIDTH, CrateNS::HEIGHT, 0, &CrateTM))
 			throw(GameError(gameErrorNS::WARNING, "guard not initialized"));
 		crate[i].setPositionX(400*i+100);
 		crate[i].setPositionY(500);
 	}
-	
+
 	if(!GuardTM.initialize(graphics, "images\\guard2x.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init guard texture"));
 	for (int i=0;i<NUM_GUARDS;i++){
@@ -134,12 +137,13 @@ void Rogue::update()
 		player.update(frameTime);
 		camera.x = GAME_WIDTH/2 - player.getCenterX();
 		camera.y = GAME_HEIGHT/2 - player.getCenterY();
-	
+
 		for (int i=0;i<NUM_WALLS;i++){
 			wall[i].update(frameTime);
 		}
 		for (int i=0;i<NUM_CRATES;i++){
 			crate[i].update(frameTime);
+			crate[i].CollidedThisFrame=false;
 		}
 		for (int i=0;i<NUM_GUARDS;i++){
 			guard[i].update(frameTime);
@@ -211,6 +215,45 @@ void Rogue::collisions()
 	for (int i=0;i< NUM_CRATES;i++){
 		if (crate[i].collidesWith(player, collisionVector)){
 			crate[i].setVelocity(player.getVelocity()*2.5);
+		}
+	}
+
+	if(gameState == LEVEL1){
+		for (int i=0;i<NUM_CRATES;i++){
+			for (int j=0;j<NUM_CRATES;j++){
+				if (i!=j && !crate[i].CollidedThisFrame && !crate[i].CollidedThisFrame){
+					if (crate[i].collidesWith(crate[j],collisionVector)){
+						//calculate elastic collision physics here
+						float m1 = crate[i].getMass();
+						float m2 = crate[j].getMass();
+						VECTOR2 vi1 = crate[i].getVelocity();
+						VECTOR2 vi2 = crate[j].getVelocity();
+
+						float vxf1 = (vi1.x *(m1-m2) +2*m2*vi2.x)/(m1+m2);
+						float vyf1 = (vi1.y *(m1-m2) +2*m2*vi2.y)/(m1+m2);
+
+						float vxf2 = (vi2.x * (m2-m1) + 2*m1*vi1.x)/(m1+m2);
+						float vyf2 = (vi2.y * (m2-m1) + 2*m1*vi1.y)/(m1+m2);
+
+						VECTOR2 vf1 = D3DXVECTOR2(vxf1,vyf1);
+						VECTOR2 vf2 = D3DXVECTOR2(vxf2,vyf2);
+						
+						/*crate[i].setPositionX(crate[i].getPositionX() - crate[i].getVelocity().x*frameTime);
+						crate[i].setPositionY(crate[i].getPositionY() - crate[i].getVelocity().y*frameTime);
+						crate[j].setPositionX(crate[j].getPositionX() - crate[j].getVelocity().x*frameTime);
+						crate[j].setPositionY(crate[j].getPositionY() - crate[j].getVelocity().y*frameTime);*/
+
+						crate[i].setVelocity(D3DXVECTOR2(0,0));
+						crate[j].setVelocity(D3DXVECTOR2(0,0));
+
+						crate[i].setVelocity(vf1);
+						crate[j].setVelocity(vf2);
+						
+						crate[i].CollidedThisFrame = true;
+						crate[j].CollidedThisFrame = true;
+					}
+				}
+			}
 		}
 	}
 

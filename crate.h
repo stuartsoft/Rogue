@@ -12,6 +12,7 @@ namespace CrateNS
     const int HEIGHT = 64;                  // image height
     const int X = GAME_WIDTH/2 - WIDTH/2;   // location on screen
     const int Y = GAME_HEIGHT/2 - HEIGHT/2;
+	const int mass = 5.0f;
 }
 
 // inherits from Entity class
@@ -25,6 +26,8 @@ private:
 	int directionY;
 
 public:
+
+	bool CollidedThisFrame;
     // constructor
     Crate();
 

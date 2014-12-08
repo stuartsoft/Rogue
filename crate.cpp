@@ -21,11 +21,12 @@ Crate::Crate() : Entity()
     target = false;
 	spriteData.scale = 1;
 	setScale(1.0);
+	setMass(CrateNS::mass);
 
 	edge.top = -CrateNS::HEIGHT/2;
 	edge.bottom = CrateNS::HEIGHT/2;
-	edge.left = -CrateNS::WIDTH/2;
-	edge.right = CrateNS::WIDTH/2;
+	edge.left = -24;
+	edge.right = 24;
 	collisionType = entityNS::BOX;
 }
 
@@ -55,6 +56,7 @@ void Crate::draw(VECTOR2 cam)
 //=============================================================================
 void Crate::update(float frameTime)
 {
+	CollidedThisFrame = false;
 	float DragConstant = 3.0f;
     Entity::update(frameTime);
 	if (abs(velocity.x)>2.0f || abs(velocity.y)>2.0f){

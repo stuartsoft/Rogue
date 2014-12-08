@@ -13,6 +13,7 @@ namespace guardNS{
 	const int MAX_SPEED_X = 750;
 	const int MAX_SPEED_Y = 750;
 	const int SPEED = 150;
+	const float MASS = 5.0f;//5Kg
 
 	const int TEXTURE_COL = 4;
 	const float SCALE = 1.0f;

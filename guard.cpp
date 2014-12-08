@@ -12,6 +12,7 @@ Guard::Guard(){
 	radius = guardNS::WIDTH/2.0;
 	setScale(guardNS::SCALE);
 
+	mass = guardNS::MASS;
 	edge.top = -guardNS::HEIGHT/2;
 	edge.bottom = guardNS::HEIGHT/2;
 	edge.left = -20;
@@ -37,5 +38,4 @@ void Guard::update(float frameTime){
 	incPosition(D3DXVECTOR2(velocity*frameTime));
 	spriteData.x = getPositionX();
 	spriteData.y = getPositionY();
-
 }
