@@ -41,6 +41,10 @@ private:
 	time_t tnow;
 	Menu* menu;
 
+	bool alert;
+	float alertTime;
+	
+	float playerNoise;
 
 public:
 	Rogue();
