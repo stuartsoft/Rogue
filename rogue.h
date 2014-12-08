@@ -35,6 +35,9 @@ private:
 	
 	VECTOR2 camera;
 
+	TextureManager backgroundtm;
+	Image background;
+
 	GameStates gameState;
 	float timeInState;
 	time_t tsoundfx;

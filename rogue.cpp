@@ -54,12 +54,10 @@ void Rogue::initialize(HWND hwnd)
 
 	if(!CrateTM.initialize(graphics,"images\\crate2x.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init guard texture"));
-	if (!temptm.initialize(graphics,"images\\crate2xpurple.png"))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "error"));
 
-	for (int i=0;i<NUM_WALLS;i++){
+	for (int i=0;i<NUM_CRATES;i++){
 		if (!crate[i].initialize(this, CrateNS::WIDTH, CrateNS::HEIGHT, 0, &CrateTM))
-			throw(GameError(gameErrorNS::WARNING, "guard not initialized"));
+			throw(GameError(gameErrorNS::WARNING, "crate not initialized"));
 		crate[i].setPositionX(400*i+100);
 		crate[i].setPositionY(500);
 	}
@@ -74,6 +72,11 @@ void Rogue::initialize(HWND hwnd)
 		guard[i].setPositionY(300);
 		guard[i].setTarget(&player);
 	}
+
+	if(!backgroundtm.initialize(graphics, "images\\background2x.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init background texture"));
+	if (!background.initialize(graphics, 2560, 1600,0,&backgroundtm))
+		throw(GameError(gameErrorNS::WARNING, "background not initialized"));
 
 	graphics->setBackColor(graphicsNS::GRAY);
 
@@ -139,11 +142,16 @@ void Rogue::update()
 
 		break;
 	case LEVEL1:
-
 		player.update(frameTime);
 		camera.x = GAME_WIDTH/2 - player.getCenterX();
 		camera.y = GAME_HEIGHT/2 - player.getCenterY();
 		
+		int tempx = (((int(camera.x))%(256)) - GAME_WIDTH/2);
+		int tempy = (((int(camera.y))%(256)) - GAME_HEIGHT/2);
+		background.setX(tempx);
+		background.setY(tempy);
+
+
 		if(player.getVelocity() != VECTOR2(0,0))
 		{
 			playerNoise = D3DXVec2Length(&player.getVelocity()) * 1.5f;
@@ -188,7 +196,7 @@ void Rogue::render()
 
 		break;
 	case LEVEL1:
-
+		background.draw();
 		player.draw(camera);
 		for (int i=0;i<NUM_WALLS;i++){
 			wall[i].draw(camera);
@@ -199,7 +207,6 @@ void Rogue::render()
 		for (int i=0;i<NUM_GUARDS;i++){
 			guard[i].draw(camera);
 		}
-
 		break;
 	}
 	graphics->spriteEnd();
