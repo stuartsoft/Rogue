@@ -35,8 +35,8 @@ void Guard::draw(VECTOR2 cam)
 	smallVision.setPosition(smallVision.getPosition()+cam);
 	largeVision.setPosition(smallVision.getPosition()+cam);
 	Image::draw();              // draw Player
-	smallVision.draw();
-	largeVision.draw();
+	//smallVision.draw();
+	//largeVision.draw();
 	smallVision.setPosition(smallVision.getPosition()-cam);
 	largeVision.setPosition(smallVision.getPosition()-cam);
 	spriteData.x -= cam.x;
