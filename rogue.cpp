@@ -73,6 +73,12 @@ void Rogue::initialize(HWND hwnd)
 		guard[i].setTarget(&player);
 	}
 
+	if(!WeaponhudTM.initialize(graphics,"images\\weaponhud2x.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init weaponhud texture"));
+	if(!WeaponHud.initialize(this, weaponhudNS::WIDTH, weaponhudNS::HEIGHT, weaponhudNS::TEXTURE_COL, &WeaponhudTM))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init weaponhud"));
+
+
 	if(!backgroundtm.initialize(graphics, "images\\background2x.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init background texture"));
 	if (!background.initialize(graphics, 2560, 1600,0,&backgroundtm))
@@ -176,6 +182,7 @@ void Rogue::update()
 		for (int i=0;i<NUM_GUARDS;i++){
 			guard[i].update(frameTime);
 		}
+		WeaponHud.update(frameTime);
 
 		break;
 	}
@@ -207,6 +214,7 @@ void Rogue::render()
 		for (int i=0;i<NUM_GUARDS;i++){
 			guard[i].draw(camera);
 		}
+		WeaponHud.draw(camera);
 		break;
 	}
 	graphics->spriteEnd();

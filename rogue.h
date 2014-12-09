@@ -15,6 +15,7 @@
 #include "crate.h"
 #include "menu.h"
 #include "guard.h"
+#include "Weaponhud.h"
 
 #include <sstream>
 
@@ -32,6 +33,9 @@ private:
 	TextureManager GuardTM;
 	Crate crate[100];
 	TextureManager CrateTM;
+	TextureManager WeaponhudTM;
+
+	Weaponhud WeaponHud;
 	
 	VECTOR2 camera;
 
