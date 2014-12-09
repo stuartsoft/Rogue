@@ -85,6 +85,7 @@ const float MIN_FRAME_RATE = 10.0f;             // the minimum frame rate
 const float MIN_FRAME_TIME = 1.0f/FRAME_RATE;   // minimum desired time for 1 frame
 const float MAX_FRAME_TIME = 1.0f/MIN_FRAME_RATE; // maximum time used in calculations
 
+
 const int NUM_WALLS = 3;
 const int NUM_CRATES = 3;
 const int NUM_GUARDS = 3;
@@ -124,6 +125,6 @@ const char WALL_TEXTURE[] = "images\\wall2x.png";
 
 
 // States
-enum GameStates {MAIN_MENU, LEVEL1, LEVEL2, LEVEL3, GAME_OVER, GAME_WIN};
+enum GameStates {MAIN_MENU, LEVEL1, LEVEL2, LEVEL3, SPLASH1, SPLASH2, SPLASH3, GAME_OVER, GAME_WIN};
 
 #endif
