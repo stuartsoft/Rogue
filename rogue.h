@@ -28,7 +28,7 @@ private:
 	Player player;
 	Guard guard[100];
 	Wall wall[100];
-	TextureManager temptm;
+//	TextureManager temptm;
 	TextureManager WallTM;
 	TextureManager GuardTM;
 	Crate crate[100];
@@ -41,6 +41,9 @@ private:
 
 	TextureManager backgroundtm;
 	Image background;
+
+	TextureManager Splash1TM, Splash2TM, Splash3TM, GameOverTM, GameWinTM;
+	Image Splash1, Splash2, Splash3, GameOverSplash, GameWinSplash;
 
 	GameStates gameState;
 	float timeInState;

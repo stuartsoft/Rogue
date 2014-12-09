@@ -71,6 +71,17 @@ void Rogue::initialize(HWND hwnd)
 		guard[i].setPositionX(400*i+100);
 		guard[i].setPositionY(300);
 		guard[i].setTarget(&player);
+		if(!guard[i].smallVision.initialize(this,guardNS::VISION_WIDTH,guardNS::VISION_WIDTH,0,&WallTM))
+			throw(GameError(gameErrorNS::WARNING, "guard vision not initialized"));
+		if(!guard[i].largeVision.initialize(this,1.5*guardNS::VISION_WIDTH,1.5*guardNS::VISION_WIDTH,0,&WallTM))
+			throw(GameError(gameErrorNS::WARNING, "guard vision not initialized"));
+		RECT v = {0, -guardNS::VISION_HEIGHT/2, guardNS::VISION_HEIGHT/2, guardNS::VISION_WIDTH/2};
+		guard[i].smallVision.setEdge(v);
+		v.left *= 1.5;
+		v.right *= 1.5;
+		v.top *= 1.5;
+		v.bottom *= 1.5;
+		guard[i].largeVision.setEdge(v);
 	}
 
 	if(!WeaponhudTM.initialize(graphics,"images\\weaponhud2x.png"))
@@ -83,6 +94,31 @@ void Rogue::initialize(HWND hwnd)
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init background texture"));
 	if (!background.initialize(graphics, 2560, 1600,0,&backgroundtm))
 		throw(GameError(gameErrorNS::WARNING, "background not initialized"));
+
+	if(!Splash1TM.initialize(graphics, "images\\background2x.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init splash1 texture"));
+	if (!Splash1.initialize(graphics, 1280, 800,0,&Splash1TM))
+		throw(GameError(gameErrorNS::WARNING, "splash1 not initialized"));
+
+	if(!Splash2TM.initialize(graphics, "images\\background2x.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init splash2 texture"));
+	if (!Splash2.initialize(graphics, 1280, 800,0,&Splash2TM))
+		throw(GameError(gameErrorNS::WARNING, "splash2 not initialized"));
+
+	if(!Splash3TM.initialize(graphics, "images\\background2x.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init splash3 texture"));
+	if (!Splash3.initialize(graphics, 1280, 800,0,&Splash3TM))
+		throw(GameError(gameErrorNS::WARNING, "splash3 not initialized"));
+
+	if(!GameOverTM.initialize(graphics, "images\\background2x.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init lose splash texture"));
+	if (!GameOverSplash.initialize(graphics, 1280, 800,0,&GameOverTM))
+		throw(GameError(gameErrorNS::WARNING, "lose splash not initialized"));
+
+	if(!GameWinTM.initialize(graphics, "images\\background2x.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init win splash texture"));
+	if (!GameWinSplash.initialize(graphics, 1280, 800,0,&GameWinTM))
+		throw(GameError(gameErrorNS::WARNING, "win splash not initialized"));
 
 	graphics->setBackColor(graphicsNS::GRAY);
 
@@ -117,7 +153,31 @@ void Rogue::gameStateUpdate(float f)
 
 	if(gameState == MAIN_MENU && timeInState > 0.5f && input->isKeyDown(ENTER_KEY) && menu->getSelectedItem() == 0)
 	{
+		gameState = SPLASH1;
+		timeInState = 0;
+	}
+
+	if(gameState == SPLASH1 && timeInState >= 3)
+	{
 		gameState = LEVEL1;
+		timeInState = 0.0f;
+	}
+
+	if(gameState == SPLASH2 && timeInState >= 3)
+	{
+		gameState = LEVEL2;
+		timeInState = 0.0f;
+	}
+
+	if(gameState == SPLASH3 && timeInState >= 3)
+	{
+		gameState = LEVEL3;
+		timeInState = 0.0f;
+	}
+
+	if((gameState == GAME_OVER || gameState == GAME_WIN) && timeInState >= 0.5f && input->isKeyDown(ENTER_KEY))
+	{
+		gameState = MAIN_MENU;
 		timeInState = 0;
 	}
 
@@ -215,6 +275,22 @@ void Rogue::render()
 			guard[i].draw(camera);
 		}
 		WeaponHud.draw(camera);
+		break;
+
+	case SPLASH1:
+		Splash1.draw();
+		break;
+	case SPLASH2:
+		Splash2.draw();
+		break;
+	case SPLASH3:
+		Splash3.draw();
+		break;
+	case GAME_OVER:
+		GameOverSplash.draw();
+		break;
+	case GAME_WIN:
+		GameWinSplash.draw();
 		break;
 	}
 	graphics->spriteEnd();
@@ -333,8 +409,15 @@ void Rogue::collisions()
 void Rogue::releaseAll()
 {
 	PlayerTM.onLostDevice();
+	GuardTM.onLostDevice();
 	WallTM.onLostDevice();
 	CrateTM.onLostDevice();
+	backgroundtm.onLostDevice();
+	Splash1TM.onLostDevice();
+	Splash2TM.onLostDevice();
+	Splash3TM.onLostDevice();
+	GameOverTM.onLostDevice();
+	GameWinTM.onLostDevice();
 	Game::releaseAll();
 	return;
 }
@@ -346,8 +429,15 @@ void Rogue::releaseAll()
 void Rogue::resetAll()
 {
 	PlayerTM.onResetDevice();
+	GuardTM.onResetDevice();
 	WallTM.onResetDevice();
-	WallTM.onResetDevice();
+	CrateTM.onResetDevice();
+	backgroundtm.onResetDevice();
+	Splash1TM.onResetDevice();
+	Splash2TM.onResetDevice();
+	Splash3TM.onResetDevice();
+	GameOverTM.onResetDevice();
+	GameWinTM.onResetDevice();
 	Game::resetAll();
 	return;
 }

@@ -27,14 +27,23 @@ namespace guardNS{
 	const int UP_START = 12;
 	const int UP_END = 15;
 	const float FRAME_DELAY = 0.15f;
+
+	const int VISION_WIDTH = 500;
+	const int VISION_HEIGHT = 150;
+
 }
 
 class Guard: public Entity{
 private:
 	entityNS::direction facingDir;
 	Entity* target;
+	float rad;
+
 public:
 	Guard();
+
+	Entity smallVision;
+	Entity largeVision;
 
 	void setTarget(Entity* t){target = t;}
 
