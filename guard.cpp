@@ -59,7 +59,7 @@ void Guard::update(float frameTime)
 			setCurrentFrame(guardNS::UP_START+1);
 		}
 	}
-	if(vy > 0 && abs(vx) <= abs(vy))
+	else if(vy > 0 && abs(vx) <= abs(vy))
 	{
 		if(facingDir != entityNS::direction::down)
 		{
@@ -68,7 +68,7 @@ void Guard::update(float frameTime)
 			setCurrentFrame(guardNS::DOWN_START+1);
 		}
 	}
-	if(vx < 0 && abs(vy) < abs(vx))
+	else if(vx < 0 && abs(vy) < abs(vx))
 	{
 		if(facingDir != entityNS::direction::left)
 		{
@@ -77,7 +77,7 @@ void Guard::update(float frameTime)
 			setCurrentFrame(guardNS::LEFT_START+1);
 		}
 	}
-	if(vx > 0 && abs(vy) < abs(vx))
+	else if(vx > 0 && abs(vy) < abs(vx))
 	{
 		if(facingDir != entityNS::direction::right)
 		{
@@ -86,9 +86,9 @@ void Guard::update(float frameTime)
 			setCurrentFrame(guardNS::RIGHT_START+1);
 		}
 	}
-	if(vx == 0 && vy == 0)
+	else if(vx == 0 && vy == 0)
 	{
-		facingDir = entityNS::direction::down;
+		facingDir = entityNS::direction::none;
 		setCurrentFrame(guardNS::DOWN_START);
 		setFrames(guardNS::DOWN_START, guardNS::DOWN_START);
 	}

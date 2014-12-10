@@ -228,8 +228,8 @@ void Rogue::loadLevel()
 			getline(file,line);
 			x = atoi(strtok(strdup(line.c_str()),","));
 			y = atoi(strtok(NULL,","));
-			crate[i].setX(x);
-			crate[i].setY(y);
+			crate[i].setPositionX(x);
+			crate[i].setPositionY(y);
 			crate[i].setActive(true);
 		}
 		for(int i=0; i<numGuards; i++)
@@ -239,8 +239,8 @@ void Rogue::loadLevel()
 			getline(file,line);
 			x = atoi(strtok(strdup(line.c_str()),","));
 			y = atoi(strtok(NULL,","));
-			guard[i].setX(x);
-			guard[i].setY(y);
+			guard[i].setPositionX(x);
+			guard[i].setPositionY(y);
 			guard[i].setActive(true);
 		}
 		string line2;
@@ -560,8 +560,8 @@ void Rogue::collisions()
 			VECTOR2 dist = *player.getCenter()-*guard[i].getCenter();
 			if(D3DXVec2Length(&dist) < playerNoise)
 			{
-//				alert = true;
-//				alertTime = 0.0f;
+				alert = true;
+				alertTime = 0.0f;
 			}
 
 
