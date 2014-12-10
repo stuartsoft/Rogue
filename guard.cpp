@@ -25,6 +25,7 @@ Guard::Guard()
 
 	facingDir = entityNS::direction::none;
 	rad = 0;
+	tarVec = VECTOR2(0,0);
 
 }
 
@@ -32,13 +33,7 @@ void Guard::draw(VECTOR2 cam)
 {
 	spriteData.x += cam.x;
 	spriteData.y += cam.y;
-	smallVision.setPosition(smallVision.getPosition()+cam);
-	largeVision.setPosition(smallVision.getPosition()+cam);
 	Image::draw();              // draw Player
-	//smallVision.draw();
-	//largeVision.draw();
-	smallVision.setPosition(smallVision.getPosition()-cam);
-	largeVision.setPosition(smallVision.getPosition()-cam);
 	spriteData.x -= cam.x;
 	spriteData.y -= cam.y;
 }
@@ -47,15 +42,13 @@ void Guard::update(float frameTime)
 {
 	Entity::update(frameTime);
 
-	
 	float vx = velocity.x;
 	float vy = velocity.y;
-	if(vx != 0)
-		rad = atan(vy/vx);
-	else if(vy > 0)
-		rad = PI/double(2);
-	else if(vy <= 0)
-		rad = -PI/double(2);
+	
+	if(vx != 0 && vy != 0)
+		rad = atan2(-vy,vx);
+	else
+		rad = PI/float(2);
 
 	if(vy < 0 && abs(vx) <= abs(vy))
 	{
@@ -103,11 +96,6 @@ void Guard::update(float frameTime)
 	incPosition(D3DXVECTOR2(velocity*frameTime));
 	spriteData.x = getPositionX();
 	spriteData.y = getPositionY();
-
-	smallVision.setPosition(*getCenter() - VECTOR2(guardNS::VISION_WIDTH/2,guardNS::VISION_HEIGHT/2));
-	smallVision.setRadians(rad);
-	largeVision.setPosition(*getCenter() - VECTOR2(1.5*guardNS::VISION_WIDTH/2,1.5*guardNS::VISION_HEIGHT/2));
-	largeVision.setRadians(rad);
 }
 
 void Guard::ai(bool alert)
@@ -123,6 +111,7 @@ void Guard::ai(bool alert)
 	else
 	{
 		setVelocity(VECTOR2(0,0));
+
 	}
 	
 }

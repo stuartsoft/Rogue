@@ -28,8 +28,8 @@ namespace guardNS{
 	const int UP_END = 15;
 	const float FRAME_DELAY = 0.15f;
 
-	const int VISION_WIDTH = 500;
-	const int VISION_HEIGHT = 150;
+	const float VISION_ANGLE = PI/float(4);
+	const int VISION_LENGTH = 200.0f;
 
 }
 
@@ -38,14 +38,13 @@ private:
 	entityNS::direction facingDir;
 	Entity* target;
 	float rad;
+	VECTOR2 tarVec;
 
 public:
 	Guard();
 
-	Entity smallVision;
-	Entity largeVision;
-
 	void setTarget(Entity* t){target = t;}
+	float getRad(){return rad;}
 
 	void Guard::draw(VECTOR2 cam);
 	void Guard::update(float frameTime);

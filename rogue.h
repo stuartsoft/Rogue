@@ -23,17 +23,21 @@ class Rogue : public Game
 {
 private:
 	// game items
+	int numGuards, numWalls, numCrates;
 
 	TextureManager PlayerTM;
-	Player player;
-	Guard guard[100];
-	Wall wall[100];
-//	TextureManager temptm;
 	TextureManager WallTM;
 	TextureManager GuardTM;
-	Crate crate[100];
 	TextureManager CrateTM;
+
+	Player player;
+	Guard guard[MAX_GUARDS];
+	Wall wall[MAX_WALLS];
+	Crate crate[MAX_CRATES];
+	
 	TextureManager WeaponhudTM;
+	TextureManager ExitTM;
+	Entity levelExit;
 
 	Weaponhud WeaponHud;
 	
@@ -50,11 +54,16 @@ private:
 	time_t tsoundfx;
 	time_t tnow;
 	Menu* menu;
-
+	
+	bool seen;
 	bool alert;
 	float alertTime;
 	
+
 	float playerNoise;
+
+	void loadLevel();
+	bool levelComplete;
 
 public:
 	Rogue();
@@ -68,6 +77,7 @@ public:
 	void render();
 	void releaseAll();
 	void resetAll();
+
 };
 
 #endif

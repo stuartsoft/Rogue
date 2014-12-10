@@ -44,44 +44,45 @@ void Rogue::initialize(HWND hwnd)
 	player.setY(0);
 
 	if(!WallTM.initialize(graphics,WALL_TEXTURE))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init player texture"));
-	for (int i=0;i<NUM_WALLS;i++){
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init wall texture"));
+	for (int i=0;i<MAX_WALLS;i++){
 		if (!wall[i].initialize(this, WallNS::WIDTH, WallNS::HEIGHT, 0, &WallTM))
 			throw(GameError(gameErrorNS::WARNING, "wall not initialized"));
-		wall[i].setX(400*i+100);
+		wall[i].setX(0);
 		wall[i].setY(0);
+		wall[i].setActive(false);
 	}
 
-	if(!CrateTM.initialize(graphics,"images\\crate2x.png"))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init guard texture"));
+	if(!ExitTM.initialize(graphics,EXIT_TEXTURE))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init exit texture"));
+	if (!levelExit.initialize(this, 128, 128, 0, &ExitTM))
+			throw(GameError(gameErrorNS::WARNING, "exit not initialized"));
+	levelExit.setActive(false);
+	RECT r = {-64,-64,64,64};
+	levelExit.setEdge(r);
+	levelExit.setCollisionType(entityNS::COLLISION_TYPE::BOX);
 
-	for (int i=0;i<NUM_CRATES;i++){
+	if(!CrateTM.initialize(graphics,"images\\crate2x.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init crate texture"));
+
+	for (int i=0;i<MAX_CRATES;i++){
 		if (!crate[i].initialize(this, CrateNS::WIDTH, CrateNS::HEIGHT, 0, &CrateTM))
 			throw(GameError(gameErrorNS::WARNING, "crate not initialized"));
-		crate[i].setPositionX(400*i+100);
-		crate[i].setPositionY(500);
+		crate[i].setPositionX(0);
+		crate[i].setPositionY(0);
+		crate[i].setActive(false);
 	}
 
 	if(!GuardTM.initialize(graphics, "images\\guard2x.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init guard texture"));
-	for (int i=0;i<NUM_GUARDS;i++)
+	for (int i=0;i<MAX_GUARDS;i++)
 	{
 		if (!guard[i].initialize(this, guardNS::WIDTH, guardNS::HEIGHT, guardNS::TEXTURE_COL, &GuardTM))
 			throw(GameError(gameErrorNS::WARNING, "guard not initialized"));
-		guard[i].setPositionX(400*i+100);
-		guard[i].setPositionY(300);
+		guard[i].setPositionX(0);
+		guard[i].setPositionY(0);
 		guard[i].setTarget(&player);
-		if(!guard[i].smallVision.initialize(this,guardNS::VISION_WIDTH,guardNS::VISION_WIDTH,0,&WallTM))
-			throw(GameError(gameErrorNS::WARNING, "guard vision not initialized"));
-		if(!guard[i].largeVision.initialize(this,1.5*guardNS::VISION_WIDTH,1.5*guardNS::VISION_WIDTH,0,&WallTM))
-			throw(GameError(gameErrorNS::WARNING, "guard vision not initialized"));
-		RECT v = {0, -guardNS::VISION_HEIGHT/2, guardNS::VISION_HEIGHT/2, guardNS::VISION_WIDTH/2};
-		guard[i].smallVision.setEdge(v);
-		v.left *= 1.5;
-		v.right *= 1.5;
-		v.top *= 1.5;
-		v.bottom *= 1.5;
-		guard[i].largeVision.setEdge(v);
+		guard[i].setActive(false);
 	}
 
 	if(!WeaponhudTM.initialize(graphics,"images\\weaponhud2x.png"))
@@ -129,9 +130,11 @@ void Rogue::initialize(HWND hwnd)
 	camera.y = 0;
 
 	gameState = MAIN_MENU;
+	levelComplete = false;
 	timeInState = 0;
 	time(&tsoundfx);
 
+	seen = false;
 	alert = false;
 	alertTime = 0.0f;
 	playerNoise = 0.0f;
@@ -144,7 +147,113 @@ void Rogue::initialize(HWND hwnd)
 //=============================================================================
 void Rogue::reset()
 {
+	player.setVelocity(VECTOR2(0,0));
+	player.setHealth(playerNS::MAX_HEALTH);
+	player.setX(0);
+	player.setY(0);
+
+	for(int i=0; i<MAX_WALLS; i++)
+	{
+		wall[i].setActive(false);
+		wall[i].setX(0);
+		wall[i].setY(0);
+	}
+	for(int i=0; i<MAX_CRATES; i++)
+	{
+		crate[i].setActive(false);
+		crate[i].setVelocity(VECTOR2(0,0));
+		crate[i].setX(0);
+		crate[i].setY(0);
+	}
+	for(int i=0; i<MAX_GUARDS; i++)
+	{
+		guard[i].setActive(false);
+		guard[i].setVelocity(VECTOR2(0,0));
+		guard[i].setX(0);
+		guard[i].setY(0);
+	}
+	levelExit.setActive(false);
+	levelExit.setX(0);
+	levelExit.setY(0);
+	
 	return;
+}
+
+
+void Rogue::loadLevel()
+{
+	ifstream file;
+	switch(gameState)
+	{
+	case LEVEL1:
+		file.open("Levels\\L1.txt");
+		break;
+	case LEVEL2:
+		file.open("Levels\\L2.txt");
+		break;
+	case LEVEL3:
+		file.open("Levels\\L3.txt");
+		break;
+	}
+	
+	if (file.is_open())
+	{
+		string line;
+		int p;
+		getline(file,line);
+		p = atoi(line.c_str());
+		numWalls = p;
+		getline(file,line);
+		p = atoi(line.c_str());
+		numCrates = p;
+		getline(file,line);
+		p = atoi(line.c_str());
+		numGuards = p;
+
+		for (int i=0; i<numWalls; i++)
+		{
+			string line;
+			int x,y;
+			getline(file,line);
+			x = atoi(strtok(strdup(line.c_str()),","));
+			y = atoi(strtok(NULL,","));
+			wall[i].setX(x);
+			wall[i].setY(y);
+			wall[i].setActive(true);
+		}
+		for(int i=0; i<numCrates; i++)
+		{
+			string line;
+			int x,y;
+			getline(file,line);
+			x = atoi(strtok(strdup(line.c_str()),","));
+			y = atoi(strtok(NULL,","));
+			crate[i].setX(x);
+			crate[i].setY(y);
+			crate[i].setActive(true);
+		}
+		for(int i=0; i<numGuards; i++)
+		{
+			string line;
+			int x,y;
+			getline(file,line);
+			x = atoi(strtok(strdup(line.c_str()),","));
+			y = atoi(strtok(NULL,","));
+			guard[i].setX(x);
+			guard[i].setY(y);
+			guard[i].setActive(true);
+		}
+		string line2;
+		int x,y;
+		getline(file,line2);
+		x = atoi(strtok(strdup(line2.c_str()),","));
+		y = atoi(strtok(NULL,","));
+		levelExit.setX(x);
+		levelExit.setY(y);
+		levelExit.setActive(true);
+	}
+	
+	file.close();
 }
 
 void Rogue::gameStateUpdate(float f)
@@ -155,26 +264,44 @@ void Rogue::gameStateUpdate(float f)
 	{
 		gameState = SPLASH1;
 		timeInState = 0;
+		levelComplete = false;
 	}
-
 	if(gameState == SPLASH1 && timeInState >= 3)
 	{
 		gameState = LEVEL1;
 		timeInState = 0.0f;
+		loadLevel();
 	}
-
+	if(gameState == LEVEL1 && levelComplete)
+	{
+		gameState = SPLASH2;
+		timeInState = 0.0f;
+		levelComplete = false;
+	}
 	if(gameState == SPLASH2 && timeInState >= 3)
 	{
 		gameState = LEVEL2;
 		timeInState = 0.0f;
+		loadLevel();
 	}
-
+	if(gameState == LEVEL2 && levelComplete)
+	{
+		gameState = SPLASH3;
+		timeInState = 0.0f;
+		levelComplete = false;
+	}
 	if(gameState == SPLASH3 && timeInState >= 3)
 	{
 		gameState = LEVEL3;
 		timeInState = 0.0f;
+		loadLevel();	
 	}
-
+	if(gameState == LEVEL3 && levelComplete)
+	{
+		gameState = GAME_WIN;
+		timeInState = 0.0f;
+		levelComplete = false;
+	}
 	if((gameState == GAME_OVER || gameState == GAME_WIN) && timeInState >= 0.5f && input->isKeyDown(ENTER_KEY))
 	{
 		gameState = MAIN_MENU;
@@ -208,6 +335,8 @@ void Rogue::update()
 
 		break;
 	case LEVEL1:
+	case LEVEL2:
+	case LEVEL3:
 		player.update(frameTime);
 		camera.x = GAME_WIDTH/2 - player.getCenterX();
 		camera.y = GAME_HEIGHT/2 - player.getCenterY();
@@ -232,15 +361,20 @@ void Rogue::update()
 			}
 		}
 
-		for (int i=0;i<NUM_WALLS;i++){
-			wall[i].update(frameTime);
+		for (int i=0;i<numWalls;i++){
+			if(wall[i].getActive())
+				wall[i].update(frameTime);
 		}
-		for (int i=0;i<NUM_CRATES;i++){
-			crate[i].update(frameTime);
-			crate[i].CollidedThisFrame=false;
+		for (int i=0;i<numCrates;i++){
+			if(crate[i].getActive())
+			{
+				crate[i].update(frameTime);
+				crate[i].CollidedThisFrame=false;
+			}
 		}
-		for (int i=0;i<NUM_GUARDS;i++){
-			guard[i].update(frameTime);
+		for (int i=0;i<numGuards;i++){
+			if(guard[i].getActive())
+				guard[i].update(frameTime);
 		}
 		WeaponHud.update(frameTime);
 
@@ -263,16 +397,33 @@ void Rogue::render()
 
 		break;
 	case LEVEL1:
+	case LEVEL2:
+	case LEVEL3:
 		background.draw();
+		
+//		if(!seen){
 		player.draw(camera);
-		for (int i=0;i<NUM_WALLS;i++){
-			wall[i].draw(camera);
+//		}
+
+		for (int i=0;i<numWalls;i++){
+			if(wall[i].getActive())
+				wall[i].draw(camera);
 		}
-		for (int i=0;i<NUM_CRATES;i++){
-			crate[i].draw(camera);
+		for (int i=0;i<numCrates;i++){
+			if(crate[i].getActive())
+				crate[i].draw(camera);
 		}
-		for (int i=0;i<NUM_GUARDS;i++){
-			guard[i].draw(camera);
+		for (int i=0;i<numGuards;i++){
+			if(guard[i].getActive())
+				guard[i].draw(camera);
+		}
+		if(levelExit.getActive())
+		{
+			levelExit.setX(levelExit.getX()+camera.x);
+			levelExit.setY(levelExit.getY()+camera.y);
+			levelExit.draw();
+			levelExit.setX(levelExit.getX()-camera.x);
+			levelExit.setY(levelExit.getY()-camera.y);
 		}
 		WeaponHud.draw(camera);
 		break;
@@ -302,9 +453,15 @@ void Rogue::render()
 //=============================
 void Rogue::ai()
 {
-	for (int i=0;i<NUM_GUARDS;i++)
+	switch(gameState)
 	{
-		guard[i].ai(alert);
+	case LEVEL1:
+	case LEVEL2:
+	case LEVEL3:
+		for (int i=0;i<numGuards;i++)
+		{
+			guard[i].ai(alert);
+		}
 	}
 }
 
@@ -315,51 +472,58 @@ void Rogue::collisions()
 {
 	VECTOR2 collisionVector = D3DXVECTOR2(0,0);
 
-	for (int i=0;i< NUM_WALLS;i++){
-		if (wall[i].collidesWith(player, collisionVector)){
-			player.setPositionX(player.getPositionX() - player.getVelocity().x* frameTime);
-			player.setPositionY(player.getPositionY() - player.getVelocity().y* frameTime);
-			if(difftime(tnow,tsoundfx) >0.075){
-				audio->playCue("Bump");
-				time(&tsoundfx);
+	switch(gameState)
+	{
+	case LEVEL1:
+	case LEVEL2:
+	case LEVEL3:
+		if(player.collidesWith(levelExit,collisionVector))
+		{
+			levelComplete = true;
+		}
+
+		for (int i=0;i< numWalls;i++){
+			if (wall[i].collidesWith(player, collisionVector)){
+				player.setPositionX(player.getPositionX() - player.getVelocity().x* frameTime);
+				player.setPositionY(player.getPositionY() - player.getVelocity().y* frameTime);
+				if(difftime(tnow,tsoundfx) >0.075){
+					audio->playCue("Bump");
+					time(&tsoundfx);
+				}
 			}
 		}
-	}
-
-	for (int i=0;i< NUM_CRATES;i++){
-		if (crate[i].collidesWith(player, collisionVector)){
-			crate[i].setVelocity(player.getVelocity()*2.5);
-		}
-		for (int j=0;j<NUM_WALLS;j++){
-			if(crate[i].collidesWith(wall[j], collisionVector)){
-				//calculate elastic collision physics here
-				float m1 = crate[i].getMass();
-				float m2 = 1000.0f;
-				VECTOR2 vi1 = crate[i].getVelocity();
-				VECTOR2 vi2 = D3DXVECTOR2(0,0);
-
-				float vxf1 = (vi1.x *(m1-m2) +2*m2*vi2.x)/(m1+m2);
-				float vyf1 = (vi1.y *(m1-m2) +2*m2*vi2.y)/(m1+m2);
-
-				VECTOR2 vf1 = D3DXVECTOR2(vxf1,vyf1);
+	
+		for (int i=0;i< numCrates;i++){
+			if (crate[i].collidesWith(player, collisionVector)){
+				crate[i].setVelocity(player.getVelocity()*2.5);
+			}
+			for (int j=0;j<numWalls;j++){
+				if(crate[i].collidesWith(wall[j], collisionVector)){
+					//calculate elastic collision physics here
+					float m1 = crate[i].getMass();
+					float m2 = 1000.0f;
+					VECTOR2 vi1 = crate[i].getVelocity();
+					VECTOR2 vi2 = D3DXVECTOR2(0,0);
+	
+					float vxf1 = (vi1.x *(m1-m2) +2*m2*vi2.x)/(m1+m2);
+					float vyf1 = (vi1.y *(m1-m2) +2*m2*vi2.y)/(m1+m2);
+	
+					VECTOR2 vf1 = D3DXVECTOR2(vxf1,vyf1);
 
 				
-				crate[i].setPositionX(crate[i].getPositionX() - crate[i].getVelocity().x*frameTime);
-				crate[i].setPositionY(crate[i].getPositionY() - crate[i].getVelocity().y*frameTime);
+					crate[i].setPositionX(crate[i].getPositionX() - crate[i].getVelocity().x*frameTime);
+					crate[i].setPositionY(crate[i].getPositionY() - crate[i].getVelocity().y*frameTime);
 
-				crate[i].setVelocity(D3DXVECTOR2(0,0));
-				crate[i].setVelocity(vf1);
+					crate[i].setVelocity(D3DXVECTOR2(0,0));
+					crate[i].setVelocity(vf1);
 						
-				crate[i].CollidedThisFrame = true;
+					crate[i].CollidedThisFrame = true;
+				}
 			}
-
 		}
 
-	}
-
-	if(gameState == LEVEL1){
-		for (int i=0;i<NUM_CRATES;i++){
-			for (int j=0;j<NUM_CRATES;j++){
+		for (int i=0;i<numCrates;i++){
+			for (int j=0;j<numCrates;j++){
 				if (i!=j && !crate[i].CollidedThisFrame && !crate[i].CollidedThisFrame){
 					if (crate[i].collidesWith(crate[j],collisionVector)){
 						//calculate elastic collision physics here
@@ -389,15 +553,32 @@ void Rogue::collisions()
 				}
 			}
 		}
-	}
 
-	for(int i=0; i<NUM_GUARDS; i++)
-	{
-		VECTOR2 dist = *guard[i].getCenter()-*player.getCenter();
-		if(D3DXVec2Length(&dist) < playerNoise)
+		seen = false;
+		for(int i=0; i<numGuards; i++)
 		{
-			alert = true;
-			alertTime = 0.0f;
+			VECTOR2 dist = *player.getCenter()-*guard[i].getCenter();
+			if(D3DXVec2Length(&dist) < playerNoise)
+			{
+//				alert = true;
+//				alertTime = 0.0f;
+			}
+
+
+			//VECTOR2 tarVec = player.getCenterPoint() - guard[i].getCenterPoint();
+			float tarRad = atan2(dist.y,dist.x);
+			float sightRad = guard[i].getRad();
+			float angle2 = tarRad - sightRad;
+			if(abs(angle2) < guardNS::VISION_ANGLE) 
+			{
+				if(D3DXVec2Length(&dist) < guardNS::VISION_LENGTH)
+				{
+					alert = true;
+					alertTime = 0.0f;
+					seen = true;
+				}
+			}
+
 		}
 	}
 }
