@@ -53,7 +53,7 @@ public:
 
 	void Guard::draw(VECTOR2 cam);
 	void Guard::update(float frameTime);
-	void Guard::ai();
+	void Guard::ai(bool &hey);
 
 	void setTarget(Entity* t){target = t;}
 	float getRad(){return rad;}
