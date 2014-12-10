@@ -452,9 +452,15 @@ void Rogue::ai()
 	case LEVEL1:
 	case LEVEL2:
 	case LEVEL3:
+		bool hey;
 		for (int i=0;i<numGuards;i++)
 		{
-			guard[i].ai();
+			hey = false;
+			guard[i].ai(hey);
+			if(hey)
+			{
+				audio->playCue("Jump");
+			}
 		}
 	}
 }
@@ -571,7 +577,9 @@ void Rogue::releaseAll()
 	GuardTM.onLostDevice();
 	WallTM.onLostDevice();
 	CrateTM.onLostDevice();
+	ExitTM.onLostDevice();
 	backgroundtm.onLostDevice();
+	WeaponhudTM.onLostDevice();
 	SplashTM.onLostDevice();
 	GameOverTM.onLostDevice();
 	GameWinTM.onLostDevice();
@@ -592,7 +600,9 @@ void Rogue::resetAll()
 	GuardTM.onResetDevice();
 	WallTM.onResetDevice();
 	CrateTM.onResetDevice();
+	ExitTM.onResetDevice();
 	backgroundtm.onResetDevice();
+	WeaponhudTM.onResetDevice();
 	SplashTM.onResetDevice();
 	GameOverTM.onResetDevice();
 	GameWinTM.onResetDevice();

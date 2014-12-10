@@ -109,14 +109,18 @@ void Guard::update(float frameTime)
 	spriteData.y = getPositionY();
 }
 
-void Guard::ai()
+void Guard::ai(bool &hey)
 {
 	VECTOR2 dir(0,0);
 	VECTOR2 dist = target->getCenterPoint()-getCenterPoint();
 	float distL = D3DXVec2Length(&dist);
 	if(distL < D3DXVec2Length(&target->getVelocity()) * 1.2f)
 	{
-		alert = true;
+		if(!alert)
+		{
+			alert = true;
+			hey = true;
+		}
 		alertTime = 0.0f;
 	}
 	
@@ -128,7 +132,11 @@ void Guard::ai()
 	{
 		if(distL < guardNS::VISION_LENGTH)
 		{
-			alert = true;
+			if(!alert)
+			{
+				alert = true;
+				hey = true;
+			}
 			alertTime = 0.0f;
 		}
 	}
