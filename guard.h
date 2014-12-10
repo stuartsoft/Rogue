@@ -33,6 +33,12 @@ namespace guardNS{
 
 }
 
+namespace swordNS {
+	const int WIDTH = 100;
+	const int HEIGHT = 100;
+	const float SCALE = 1.0f;	
+}
+
 class Guard: public Entity{
 private:
 	entityNS::direction facingDir;
@@ -43,12 +49,13 @@ private:
 public:
 	Guard();
 
-	void setTarget(Entity* t){target = t;}
-	float getRad(){return rad;}
-
 	void Guard::draw(VECTOR2 cam);
 	void Guard::update(float frameTime);
 	void Guard::ai(bool alert);
+
+	void setTarget(Entity* t){target = t;}
+	float getRad(){return rad;}
+
 };
 
 #endif

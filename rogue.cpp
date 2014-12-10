@@ -16,7 +16,9 @@ using namespace std;
 //=============================================================================
 Rogue::Rogue()
 {
-
+	splashFont = new TextDX;
+	winFont = new TextDX;
+	loseFont = new TextDX;
 }
 
 //=============================================================================
@@ -25,6 +27,9 @@ Rogue::Rogue()
 Rogue::~Rogue()
 {
 	releaseAll();               // call deviceLost() for every graphics item
+	SAFE_DELETE(splashFont);
+	SAFE_DELETE(winFont);
+	SAFE_DELETE(loseFont);
 }
 
 //=============================================================================
@@ -90,26 +95,15 @@ void Rogue::initialize(HWND hwnd)
 	if(!WeaponHud.initialize(this, weaponhudNS::WIDTH, weaponhudNS::HEIGHT, weaponhudNS::TEXTURE_COL, &WeaponhudTM))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init weaponhud"));
 
-
 	if(!backgroundtm.initialize(graphics, "images\\background2x.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init background texture"));
 	if (!background.initialize(graphics, 2560, 1600,0,&backgroundtm))
 		throw(GameError(gameErrorNS::WARNING, "background not initialized"));
 
-	if(!Splash1TM.initialize(graphics, "images\\background2x.png"))
+	if(!SplashTM.initialize(graphics, "images\\splash.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init splash1 texture"));
-	if (!Splash1.initialize(graphics, 1280, 800,0,&Splash1TM))
+	if (!Splash.initialize(graphics, 1280, 720,0,&SplashTM))
 		throw(GameError(gameErrorNS::WARNING, "splash1 not initialized"));
-
-	if(!Splash2TM.initialize(graphics, "images\\background2x.png"))
-		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init splash2 texture"));
-	if (!Splash2.initialize(graphics, 1280, 800,0,&Splash2TM))
-		throw(GameError(gameErrorNS::WARNING, "splash2 not initialized"));
-
-	if(!Splash3TM.initialize(graphics, "images\\background2x.png"))
-		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init splash3 texture"));
-	if (!Splash3.initialize(graphics, 1280, 800,0,&Splash3TM))
-		throw(GameError(gameErrorNS::WARNING, "splash3 not initialized"));
 
 	if(!GameOverTM.initialize(graphics, "images\\background2x.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init lose splash texture"));
@@ -120,6 +114,17 @@ void Rogue::initialize(HWND hwnd)
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init win splash texture"));
 	if (!GameWinSplash.initialize(graphics, 1280, 800,0,&GameWinTM))
 		throw(GameError(gameErrorNS::WARNING, "win splash not initialized"));
+
+	if(splashFont->initialize(graphics, 52, true, false, "Stencil") == false)
+        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
+	if(winFont->initialize(graphics, 52, true, false, "Stencil") == false)
+        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
+	if(loseFont->initialize(graphics, 52, true, false, "Stencil") == false)
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
+	
+	splashFont->setFontColor(graphicsNS::WHITE);
+	winFont->setFontColor(graphicsNS::BLACK);
+	loseFont->setFontColor(graphicsNS::RED);
 
 	graphics->setBackColor(graphicsNS::GRAY);
 
@@ -149,8 +154,8 @@ void Rogue::reset()
 {
 	player.setVelocity(VECTOR2(0,0));
 	player.setHealth(playerNS::MAX_HEALTH);
-	player.setX(0);
-	player.setY(0);
+	player.setPositionX(0);
+	player.setPositionY(0);
 
 	for(int i=0; i<MAX_WALLS; i++)
 	{
@@ -162,23 +167,26 @@ void Rogue::reset()
 	{
 		crate[i].setActive(false);
 		crate[i].setVelocity(VECTOR2(0,0));
-		crate[i].setX(0);
-		crate[i].setY(0);
+		crate[i].setPositionX(0);
+		crate[i].setPositionY(0);
 	}
 	for(int i=0; i<MAX_GUARDS; i++)
 	{
 		guard[i].setActive(false);
 		guard[i].setVelocity(VECTOR2(0,0));
-		guard[i].setX(0);
-		guard[i].setY(0);
+		guard[i].setPositionX(0);
+		guard[i].setPositionY(0);
 	}
 	levelExit.setActive(false);
 	levelExit.setX(0);
 	levelExit.setY(0);
 	
+	alert = false;
+	alertTime = 0.0f;
+	seen = false;
+
 	return;
 }
-
 
 void Rogue::loadLevel()
 {
@@ -265,8 +273,9 @@ void Rogue::gameStateUpdate(float f)
 		gameState = SPLASH1;
 		timeInState = 0;
 		levelComplete = false;
+		reset();
 	}
-	if(gameState == SPLASH1 && timeInState >= 3)
+	if(gameState == SPLASH1 && timeInState >= 2.5f)
 	{
 		gameState = LEVEL1;
 		timeInState = 0.0f;
@@ -277,8 +286,9 @@ void Rogue::gameStateUpdate(float f)
 		gameState = SPLASH2;
 		timeInState = 0.0f;
 		levelComplete = false;
+		reset();
 	}
-	if(gameState == SPLASH2 && timeInState >= 3)
+	if(gameState == SPLASH2 && timeInState >= 2.5f)
 	{
 		gameState = LEVEL2;
 		timeInState = 0.0f;
@@ -289,12 +299,13 @@ void Rogue::gameStateUpdate(float f)
 		gameState = SPLASH3;
 		timeInState = 0.0f;
 		levelComplete = false;
+		reset();
 	}
-	if(gameState == SPLASH3 && timeInState >= 3)
+	if(gameState == SPLASH3 && timeInState >= 2.5f)
 	{
 		gameState = LEVEL3;
 		timeInState = 0.0f;
-		loadLevel();	
+		loadLevel();
 	}
 	if(gameState == LEVEL3 && levelComplete)
 	{
@@ -429,24 +440,28 @@ void Rogue::render()
 		break;
 
 	case SPLASH1:
-		Splash1.draw();
+		Splash.draw();
+		splashFont->print("ALPHA MISSION: BEGIN",GAME_WIDTH/4,GAME_HEIGHT/4);
 		break;
 	case SPLASH2:
-		Splash2.draw();
+		Splash.draw();
+		splashFont->print("BETA MISSION: BEGIN",GAME_WIDTH/4,GAME_HEIGHT/4);
 		break;
 	case SPLASH3:
-		Splash3.draw();
+		Splash.draw();
+		splashFont->print("CHARLIE MISSION: BEGIN",GAME_WIDTH/4,GAME_HEIGHT/4);
 		break;
 	case GAME_OVER:
 		GameOverSplash.draw();
+		loseFont->print("MISSION FAILED",GAME_WIDTH/3,GAME_HEIGHT/4);
 		break;
 	case GAME_WIN:
 		GameWinSplash.draw();
+		winFont->print("MISSION SUCCESS!",GAME_WIDTH/3,GAME_HEIGHT/4);
 		break;
 	}
 	graphics->spriteEnd();
 }
-
 
 //=============================
 // handles entity ai
@@ -589,14 +604,15 @@ void Rogue::collisions()
 //=============================================================================
 void Rogue::releaseAll()
 {
+	splashFont->onLostDevice();
+	winFont->onLostDevice();
+	loseFont->onLostDevice();
 	PlayerTM.onLostDevice();
 	GuardTM.onLostDevice();
 	WallTM.onLostDevice();
 	CrateTM.onLostDevice();
 	backgroundtm.onLostDevice();
-	Splash1TM.onLostDevice();
-	Splash2TM.onLostDevice();
-	Splash3TM.onLostDevice();
+	SplashTM.onLostDevice();
 	GameOverTM.onLostDevice();
 	GameWinTM.onLostDevice();
 	Game::releaseAll();
@@ -609,14 +625,15 @@ void Rogue::releaseAll()
 //=============================================================================
 void Rogue::resetAll()
 {
+	splashFont->onResetDevice();
+	winFont->onResetDevice();
+	loseFont->onResetDevice();
 	PlayerTM.onResetDevice();
 	GuardTM.onResetDevice();
 	WallTM.onResetDevice();
 	CrateTM.onResetDevice();
 	backgroundtm.onResetDevice();
-	Splash1TM.onResetDevice();
-	Splash2TM.onResetDevice();
-	Splash3TM.onResetDevice();
+	SplashTM.onResetDevice();
 	GameOverTM.onResetDevice();
 	GameWinTM.onResetDevice();
 	Game::resetAll();

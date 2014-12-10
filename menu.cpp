@@ -32,11 +32,11 @@ void Menu::initialize(Graphics *g, Input *i)
 	menuItemFont = new TextDX();
 	menuHeadingFont = new TextDX();
 	menuItemFontHighlight = new TextDX();
-	if(menuItemFont->initialize(graphics, 32, false, false, "Forte") == false)
+	if(menuItemFont->initialize(graphics, 32, false, false, "Stencil") == false)
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing menuItem font"));
-	if(menuItemFontHighlight->initialize(graphics, 32, false, false, "Forte") == false)
+	if(menuItemFontHighlight->initialize(graphics, 32, false, false, "Stencil") == false)
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing menuItem font"));
-	if(menuHeadingFont->initialize(graphics, 72, false, true, "Forte") == false)
+	if(menuHeadingFont->initialize(graphics, 72, false, true, "Stencil") == false)
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing menuHeading font"));
 	menuHeadingFont->setFontColor(normalColor);
 	menuItemFont->setFontColor(normalColor);

@@ -43,11 +43,15 @@ private:
 	
 	VECTOR2 camera;
 
+	TextDX* splashFont;
+	TextDX* winFont;
+	TextDX* loseFont;
+
 	TextureManager backgroundtm;
 	Image background;
 
-	TextureManager Splash1TM, Splash2TM, Splash3TM, GameOverTM, GameWinTM;
-	Image Splash1, Splash2, Splash3, GameOverSplash, GameWinSplash;
+	TextureManager SplashTM, GameOverTM, GameWinTM;
+	Image Splash, GameOverSplash, GameWinSplash;
 
 	GameStates gameState;
 	float timeInState;
@@ -58,7 +62,6 @@ private:
 	bool seen;
 	bool alert;
 	float alertTime;
-	
 
 	float playerNoise;
 
