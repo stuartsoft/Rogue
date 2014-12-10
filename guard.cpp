@@ -114,7 +114,7 @@ void Guard::ai()
 	VECTOR2 dir(0,0);
 	VECTOR2 dist = target->getCenterPoint()-getCenterPoint();
 	float distL = D3DXVec2Length(&dist);
-	if(distL < D3DXVec2Length(&target->getVelocity()) * 1.5f)
+	if(distL < D3DXVec2Length(&target->getVelocity()) * 1.2f)
 	{
 		alert = true;
 		alertTime = 0.0f;
@@ -143,7 +143,7 @@ void Guard::ai()
 		}
 		else
 		{
-			setVelocity(dir*guardNS::SPEED*1.5);
+			setVelocity(dir*guardNS::SPEED*1.15);
 		}
 		
 	}
