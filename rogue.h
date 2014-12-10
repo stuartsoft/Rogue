@@ -58,12 +58,6 @@ private:
 	time_t tsoundfx;
 	time_t tnow;
 	Menu* menu;
-	
-	bool seen;
-	bool alert;
-	float alertTime;
-
-	float playerNoise;
 
 	void loadLevel();
 	bool levelComplete;

@@ -139,11 +139,6 @@ void Rogue::initialize(HWND hwnd)
 	timeInState = 0;
 	time(&tsoundfx);
 
-	seen = false;
-	alert = false;
-	alertTime = 0.0f;
-	playerNoise = 0.0f;
-
 	return;
 }
 
@@ -180,10 +175,6 @@ void Rogue::reset()
 	levelExit.setActive(false);
 	levelExit.setX(0);
 	levelExit.setY(0);
-	
-	alert = false;
-	alertTime = 0.0f;
-	seen = false;
 
 	return;
 }
@@ -217,7 +208,7 @@ void Rogue::loadLevel()
 		getline(file,line);
 		p = atoi(line.c_str());
 		numGuards = p;
-
+		getline(file,line);
 		for (int i=0; i<numWalls; i++)
 		{
 			string line;
@@ -225,10 +216,11 @@ void Rogue::loadLevel()
 			getline(file,line);
 			x = atoi(strtok(strdup(line.c_str()),","));
 			y = atoi(strtok(NULL,","));
-			wall[i].setX(x);
-			wall[i].setY(y);
+			wall[i].setX(x*WallNS::WIDTH);
+			wall[i].setY(y*WallNS::HEIGHT);
 			wall[i].setActive(true);
 		}
+		getline(file,line);
 		for(int i=0; i<numCrates; i++)
 		{
 			string line;
@@ -236,10 +228,11 @@ void Rogue::loadLevel()
 			getline(file,line);
 			x = atoi(strtok(strdup(line.c_str()),","));
 			y = atoi(strtok(NULL,","));
-			crate[i].setPositionX(x);
-			crate[i].setPositionY(y);
+			crate[i].setPositionX(x*WallNS::WIDTH+WallNS::WIDTH/2);
+			crate[i].setPositionY(y*WallNS::HEIGHT+WallNS::HEIGHT/2);
 			crate[i].setActive(true);
 		}
+		getline(file,line);
 		for(int i=0; i<numGuards; i++)
 		{
 			string line;
@@ -247,17 +240,18 @@ void Rogue::loadLevel()
 			getline(file,line);
 			x = atoi(strtok(strdup(line.c_str()),","));
 			y = atoi(strtok(NULL,","));
-			guard[i].setPositionX(x);
-			guard[i].setPositionY(y);
+			guard[i].setPositionX(x*WallNS::WIDTH+WallNS::WIDTH/2);
+			guard[i].setPositionY(y*WallNS::HEIGHT+WallNS::HEIGHT/2);
 			guard[i].setActive(true);
 		}
+		getline(file,line);
 		string line2;
 		int x,y;
 		getline(file,line2);
 		x = atoi(strtok(strdup(line2.c_str()),","));
 		y = atoi(strtok(NULL,","));
-		levelExit.setX(x);
-		levelExit.setY(y);
+		levelExit.setX(x*WallNS::WIDTH+WallNS::WIDTH/2);
+		levelExit.setY(y*WallNS::HEIGHT+WallNS::HEIGHT/2);
 		levelExit.setActive(true);
 	}
 	
@@ -356,22 +350,7 @@ void Rogue::update()
 		int tempy = (((int(camera.y))%(256)) - GAME_HEIGHT/2);
 		background.setX(tempx);
 		background.setY(tempy);
-
-
-		if(player.getVelocity() != VECTOR2(0,0))
-		{
-			playerNoise = D3DXVec2Length(&player.getVelocity()) * 1.5f;
-		}
-
-		if(alert)
-		{
-			alertTime += frameTime;
-			if(alertTime >= ALERT_DURATION)
-			{
-				alert = false;
-			}
-		}
-
+		
 		for (int i=0;i<numWalls;i++){
 			if(wall[i].getActive())
 				wall[i].update(frameTime);
@@ -475,7 +454,7 @@ void Rogue::ai()
 	case LEVEL3:
 		for (int i=0;i<numGuards;i++)
 		{
-			guard[i].ai(alert);
+			guard[i].ai();
 		}
 	}
 }
@@ -504,6 +483,13 @@ void Rogue::collisions()
 				if(difftime(tnow,tsoundfx) >0.075){
 					audio->playCue("Bump");
 					time(&tsoundfx);
+				}
+			}
+			for(int j=0; j<numGuards ; j++)
+			{
+				if(wall[i].collidesWith(guard[j], collisionVector)){
+					guard[j].setPositionX(guard[j].getPositionX() - guard[j].getVelocity().x*frameTime);
+					guard[j].setPositionY(guard[j].getPositionY() - guard[j].getVelocity().y*frameTime);
 				}
 			}
 		}
@@ -568,33 +554,7 @@ void Rogue::collisions()
 				}
 			}
 		}
-
-		seen = false;
-		for(int i=0; i<numGuards; i++)
-		{
-			VECTOR2 dist = *player.getCenter()-*guard[i].getCenter();
-			if(D3DXVec2Length(&dist) < playerNoise)
-			{
-				alert = true;
-				alertTime = 0.0f;
-			}
-
-
-			//VECTOR2 tarVec = player.getCenterPoint() - guard[i].getCenterPoint();
-			float tarRad = atan2(dist.y,dist.x);
-			float sightRad = guard[i].getRad();
-			float angle2 = tarRad - sightRad;
-			if(abs(angle2) < guardNS::VISION_ANGLE) 
-			{
-				if(D3DXVec2Length(&dist) < guardNS::VISION_LENGTH)
-				{
-					alert = true;
-					alertTime = 0.0f;
-					seen = true;
-				}
-			}
-
-		}
+		
 	}
 }
 

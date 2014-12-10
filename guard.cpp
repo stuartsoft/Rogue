@@ -27,6 +27,8 @@ Guard::Guard()
 	rad = 0;
 	tarVec = VECTOR2(0,0);
 
+	alert = false;
+	alertTime = 0;
 }
 
 void Guard::draw(VECTOR2 cam)
@@ -41,6 +43,15 @@ void Guard::draw(VECTOR2 cam)
 void Guard::update(float frameTime)
 {
 	Entity::update(frameTime);
+
+	if(alert)
+	{
+		alertTime += frameTime;
+		if(alertTime >= ALERT_DURATION)
+		{
+			alert = false;
+		}
+	}
 
 	float vx = velocity.x;
 	float vy = velocity.y;
@@ -98,20 +109,47 @@ void Guard::update(float frameTime)
 	spriteData.y = getPositionY();
 }
 
-void Guard::ai(bool alert)
+void Guard::ai()
 {
 	VECTOR2 dir(0,0);
+	VECTOR2 dist = target->getCenterPoint()-getCenterPoint();
+	float distL = D3DXVec2Length(&dist);
+	if(distL < D3DXVec2Length(&target->getVelocity()) * 1.5f)
+	{
+		alert = true;
+		alertTime = 0.0f;
+	}
+	
+	//VECTOR2 tarVec = player.getCenterPoint() - guard[i].getCenterPoint();
+	float tarRad = atan2(dist.y,dist.x);
+	float sightRad = rad;
+	float angle2 = tarRad - sightRad;
+	if(abs(angle2) < guardNS::VISION_ANGLE) 
+	{
+		if(distL < guardNS::VISION_LENGTH)
+		{
+			alert = true;
+			alertTime = 0.0f;
+		}
+	}
 
 	if(alert)
 	{
-		dir = (*target->getCenter())-(*getCenter());
+		dir = (*target->getCenter())-*getCenter();
 		D3DXVec2Normalize(&dir,&dir);
-		setVelocity(dir*guardNS::SPEED);
+		if(D3DXVec2Length(&dir) > 200)
+		{
+			setVelocity(dir*guardNS::SPEED);
+		}
+		else
+		{
+			setVelocity(dir*guardNS::SPEED*1.5);
+		}
+		
 	}
 	else
 	{
 		setVelocity(VECTOR2(0,0));
-
 	}
 	
 }

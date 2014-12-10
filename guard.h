@@ -45,13 +45,15 @@ private:
 	Entity* target;
 	float rad;
 	VECTOR2 tarVec;
+	bool alert;
+	float alertTime;
 
 public:
 	Guard();
 
 	void Guard::draw(VECTOR2 cam);
 	void Guard::update(float frameTime);
-	void Guard::ai(bool alert);
+	void Guard::ai();
 
 	void setTarget(Entity* t){target = t;}
 	float getRad(){return rad;}

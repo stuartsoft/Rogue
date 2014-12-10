@@ -104,16 +104,7 @@ void Player::update(float frameTime)
 
 	//update position based on velocity changes
 	incPosition(D3DXVECTOR2(velocity*frameTime));
-	
-/*    if (getPositionX() > GAME_WIDTH-getWidth()*getScale()) 
-		setPositionX(GAME_WIDTH-getWidth()*getScale()); 
-    if (getPositionX() < 0) 
-        setPositionX(0);
-	if (getPositionY() > GAME_HEIGHT-getHeight()*getScale())
-		setPositionY(GAME_HEIGHT-getHeight()*getScale());
-	if (getPositionY() < 0)
-		setPositionY(0);
-*/
+
 	//apply new position
 	spriteData.x = getPositionX();
 	spriteData.y = getPositionY();
