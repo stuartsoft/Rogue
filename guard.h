@@ -31,6 +31,7 @@ namespace guardNS{
 	const float VISION_ANGLE = PI/float(4);
 	const int VISION_LENGTH = 200.0f;
 
+	const float COLLISION_DAMAGE = 25;
 }
 
 namespace swordNS {
@@ -54,7 +55,8 @@ public:
 	void Guard::draw(VECTOR2 cam);
 	void Guard::update(float frameTime);
 	void Guard::ai(bool &hey);
-
+	
+	void Guard::reset();
 	void setTarget(Entity* t){target = t;}
 	float getRad(){return rad;}
 

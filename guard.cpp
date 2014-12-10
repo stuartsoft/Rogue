@@ -161,3 +161,12 @@ void Guard::ai(bool &hey)
 	}
 	
 }
+
+void Guard::reset()
+{
+	setActive(false);
+	velocity = VECTOR2(0,0);
+	setPosition(VECTOR2(0,0));
+	alert = false;
+	alertTime = 0.0f;
+}
