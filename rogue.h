@@ -29,13 +29,14 @@ private:
 	TextureManager WallTM;
 	TextureManager GuardTM;
 	TextureManager CrateTM;
+	TextureManager WeaponTM;
+	TextureManager WeaponhudTM;
 
 	Player player;
 	Guard guard[MAX_GUARDS];
 	Wall wall[MAX_WALLS];
 	Crate crate[MAX_CRATES];
 	
-	TextureManager WeaponhudTM;
 	TextureManager ExitTM;
 	Entity levelExit;
 

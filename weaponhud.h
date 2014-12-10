@@ -16,8 +16,10 @@ namespace weaponhudNS{
 class Weaponhud: public Entity{
 private:
 	time_t timesincekeypress;
+	Image WeaponImg[4];
 public:
 	Weaponhud();
+	void initWeapons(TextureManager* tm);
 	void Weaponhud::draw(VECTOR2 cam);
 	void Weaponhud::update(float frameTime);
 };

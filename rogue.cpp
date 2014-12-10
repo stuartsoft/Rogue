@@ -95,6 +95,10 @@ void Rogue::initialize(HWND hwnd)
 	if(!WeaponHud.initialize(this, weaponhudNS::WIDTH, weaponhudNS::HEIGHT, weaponhudNS::TEXTURE_COL, &WeaponhudTM))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init weaponhud"));
 
+	if (!WeaponTM.initialize(graphics, "images\\Weapons2x.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init weapon texture"));
+	WeaponHud.initWeapons(&WeaponTM);
+
 	if(!backgroundtm.initialize(graphics, "images\\background2x.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init background texture"));
 	if (!background.initialize(graphics, 2560, 1600,0,&backgroundtm))

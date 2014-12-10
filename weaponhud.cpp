@@ -13,9 +13,26 @@ Weaponhud::Weaponhud(){
 	time(&timesincekeypress);
 }
 
+void Weaponhud::initWeapons(TextureManager * tm){
+	for (int i=0;i<4;i++){
+		if(!WeaponImg[i].initialize(graphics,64,64,4,tm))
+			throw(GameError(gameErrorNS::FATAL_ERROR, "Error init weapon texture"));
+		WeaponImg[i].setX(i*60+14);
+		WeaponImg[i].setY(0);
+	}
+	WeaponImg[0].setCurrentFrame(0);
+	WeaponImg[1].setCurrentFrame(1);
+	WeaponImg[2].setCurrentFrame(3);
+	WeaponImg[3].setCurrentFrame(4);
+}
+
+
 void Weaponhud::draw(VECTOR2 cam)
 {
-	Image::draw();              // draw Player
+	Image::draw();
+	for(int i=0;i<4;i++){
+		WeaponImg[i].draw();
+	}
 }
 
 void Weaponhud::update(float frameTime)
