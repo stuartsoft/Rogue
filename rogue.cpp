@@ -243,12 +243,20 @@ void Rogue::loadLevel()
 		for(int i=0; i<numGuards; i++)
 		{
 			string line;
-			int x,y;
+			int x,y,p;
+			bool up;
 			getline(file,line);
 			x = atoi(strtok(strdup(line.c_str()),","));
 			y = atoi(strtok(NULL,","));
-			guard[i].setPositionX(x*WallNS::WIDTH+WallNS::WIDTH/2);
-			guard[i].setPositionY(y*WallNS::HEIGHT+WallNS::HEIGHT/2);
+			getline(file,line);
+			p = atoi(line.c_str());
+			if(p == 1)
+				up = true;
+			else
+				up = false;
+			guard[i].setPatrol(x*WallNS::WIDTH+WallNS::WIDTH/2,
+							   y*WallNS::HEIGHT+WallNS::HEIGHT/2,
+							   up);
 			guard[i].setActive(true);
 		}
 		getline(file,line);
