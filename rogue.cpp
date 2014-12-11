@@ -120,6 +120,15 @@ void Rogue::initialize(HWND hwnd)
 	if (!GameWinSplash.initialize(graphics, 1280, 800,0,&GameWinTM))
 		throw(GameError(gameErrorNS::WARNING, "win splash not initialized"));
 
+	if(!DarknessTM.initialize(graphics, "images\\darkness.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init darkness texture"));
+	if(!Darkness.initialize(graphics, 1280, 720,0,&DarknessTM))
+		throw(GameError(gameErrorNS::WARNING, "darkness not initialized"));
+	if(!RedDarknessTM.initialize(graphics, "images\\reddarkness.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init darkness texture"));
+	if(!RedDarkness.initialize(graphics, 1280, 720,0,&RedDarknessTM))
+		throw(GameError(gameErrorNS::WARNING, "darkness not initialized"));
+
 	if(splashFont->initialize(graphics, 52, true, false, "Stencil") == false)
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
 	if(winFont->initialize(graphics, 52, true, false, "Stencil") == false)
@@ -145,6 +154,7 @@ void Rogue::initialize(HWND hwnd)
 	time(&tsoundfx);
 	flinch = false;
 	flinchTime = 0.0f;
+	healthFilter = 0;
 
 	return;
 }
@@ -361,6 +371,7 @@ void Rogue::update()
 		camera.x = GAME_WIDTH/2 - player.getCenterX();
 		camera.y = GAME_HEIGHT/2 - player.getCenterY();
 		
+		healthFilter = D3DCOLOR_ARGB(int((1-player.getHealth()/playerNS::MAX_HEALTH)*255),255,255,255);		
 		if(player.getHealth() <= 0)
 		{
 			gameState = GAME_OVER;
@@ -449,6 +460,8 @@ void Rogue::render()
 		for (int i=0;i<numWalls;i++){
 			wall[i].draw(camera);
 		}
+		Darkness.draw();
+		RedDarkness.draw(healthFilter);
 		WeaponHud.draw(camera);
 		break;
 
@@ -622,6 +635,8 @@ void Rogue::releaseAll()
 	backgroundtm.onLostDevice();
 	WeaponhudTM.onLostDevice();
 	SplashTM.onLostDevice();
+	DarknessTM.onLostDevice();
+	RedDarknessTM.onResetDevice();
 	GameOverTM.onLostDevice();
 	GameWinTM.onLostDevice();
 	Game::releaseAll();
@@ -645,6 +660,8 @@ void Rogue::resetAll()
 	backgroundtm.onResetDevice();
 	WeaponhudTM.onResetDevice();
 	SplashTM.onResetDevice();
+	DarknessTM.onResetDevice();
+	RedDarknessTM.onResetDevice();
 	GameOverTM.onResetDevice();
 	GameWinTM.onResetDevice();
 	Game::resetAll();

@@ -54,6 +54,9 @@ private:
 	TextureManager SplashTM, GameOverTM, GameWinTM;
 	Image Splash, GameOverSplash, GameWinSplash;
 
+	TextureManager DarknessTM, RedDarknessTM;
+	Image Darkness, RedDarkness;
+
 	GameStates gameState;
 	float timeInState;
 	time_t tsoundfx;
@@ -64,6 +67,7 @@ private:
 	bool levelComplete;
 	bool flinch;
 	float flinchTime;
+	DWORD healthFilter;
 
 public:
 	Rogue();
