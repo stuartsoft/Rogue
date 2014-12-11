@@ -29,7 +29,12 @@ Guard::Guard()
 
 	alert = false;
 	alertTime = 0;
-	flinchTime = FLINCH_DURATION;//guards are ready to be hurt >:D
+	flinchTime = FLINCH_DURATION;
+
+	patrolUp = false;
+	onPatrol = false;
+	anchor = VECTOR2(0,0);
+	patrolTar = VECTOR2(0,0);
 }
 
 void Guard::draw(VECTOR2 cam)
@@ -125,6 +130,7 @@ void Guard::ai(bool &hey)
 		if(!alert)
 		{
 			alert = true;
+			onPatrol = false;
 			hey = true;
 		}
 		alertTime = 0.0f;
@@ -141,6 +147,7 @@ void Guard::ai(bool &hey)
 			if(!alert)
 			{
 				alert = true;
+				onPatrol = false;
 				hey = true;
 			}
 			alertTime = 0.0f;
@@ -149,21 +156,34 @@ void Guard::ai(bool &hey)
 
 	if(alert)
 	{
-		dir = (*target->getCenter())-*getCenter();
-		D3DXVec2Normalize(&dir,&dir);
-		if(D3DXVec2Length(&dir) > 200)
-		{
-			setVelocity(dir*guardNS::SPEED);
-		}
-		else
-		{
-			setVelocity(dir*guardNS::SPEED*1.15);
-		}
-		
+		deltaTrack(target->getCenterPoint());
+		if(D3DXVec2Length(&dist) < 200)
+			setVelocity(getVelocity()*1.2);
 	}
 	else
 	{
-		setVelocity(VECTOR2(0,0));
+		if(onPatrol)
+		{
+			deltaTrack(patrolTar);
+			dist = getCenterPoint()-patrolTar;
+			if(D3DXVec2Length(&dist) < 10)
+			{
+				if(patrolTar == patrolPoint1)
+					patrolTar = patrolPoint2;
+				else
+					patrolTar = patrolPoint1;
+			}
+		}
+		else
+		{
+			deltaTrack(anchor);
+			dist = getCenterPoint()-anchor;
+			if(D3DXVec2Length(&dist) < 5)
+			{
+				onPatrol = true;
+				patrolTar = patrolPoint2;
+			}
+		}
 	}
 	
 }
@@ -175,4 +195,39 @@ void Guard::reset()
 	setPosition(VECTOR2(0,0));
 	alert = false;
 	alertTime = 0.0f;
+}
+
+void Guard::setPatrol(int x, int y, bool up)
+{
+	setPosition(VECTOR2(x,y));
+	anchor = VECTOR2(x,y);
+	patrolUp = up;
+	onPatrol = true;
+	if(patrolUp)
+	{
+		patrolPoint1 = anchor + VECTOR2(0,guardNS::PATROL_SIZE);
+		patrolPoint2 = anchor - VECTOR2(0,guardNS::PATROL_SIZE);
+	}
+	else
+	{
+		patrolPoint1 = anchor + VECTOR2(guardNS::PATROL_SIZE,0);
+		patrolPoint2 = anchor - VECTOR2(guardNS::PATROL_SIZE,0);
+	}
+	patrolTar = patrolPoint1;
+}
+
+void Guard::deltaTrack(VECTOR2 tar)
+{
+	VECTOR2 dir(0,0);
+	VECTOR2 dist = tar - getCenterPoint();
+	if(dist.x > 5)
+		dir.x = 1;
+	else if(dist.x <-5)
+		dir.x = -1;
+	if (dist.y > 5)
+		dir.y = 1;
+	else if(dist.y < -5)
+		dir.y = -1;
+	D3DXVec2Normalize(&dir,&dir);
+	setVelocity(dir*guardNS::SPEED);
 }

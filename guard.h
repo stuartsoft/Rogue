@@ -30,6 +30,7 @@ namespace guardNS{
 
 	const float VISION_ANGLE = PI/float(4);
 	const int VISION_LENGTH = 200.0f;
+	const int PATROL_SIZE = 256;
 
 	const float COLLISION_DAMAGE = 50.0f;
 }
@@ -48,6 +49,12 @@ private:
 	VECTOR2 tarVec;
 	bool alert;
 	float alertTime;
+	VECTOR2 anchor;
+	bool patrolUp;
+	bool onPatrol;
+	VECTOR2 patrolTar;
+	VECTOR2 patrolPoint1;
+	VECTOR2 patrolPoint2;
 
 public:
 	float flinchTime;
@@ -60,6 +67,9 @@ public:
 	
 	void Guard::reset();
 	void setTarget(Entity* t){target = t;}
+	void setPatrol(int x, int y, bool up);
+	void deltaTrack(VECTOR2 tar);
+
 	float getRad(){return rad;}
 
 };
