@@ -63,11 +63,15 @@ private:
 	time_t tnow;
 	Menu* menu;
 
+	int score;
+
 	void loadLevel();
 	bool levelComplete;
 	bool flinch;
 	float flinchTime;
 	DWORD healthFilter;
+
+	void recordHighScore(int s);
 
 public:
 	Rogue();

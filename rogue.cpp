@@ -148,6 +148,8 @@ void Rogue::initialize(HWND hwnd)
 	camera.x = 0;
 	camera.y = 0;
 
+	score = 0;
+
 	gameState = MAIN_MENU;
 	levelComplete = false;
 	timeInState = 0;
@@ -336,6 +338,8 @@ void Rogue::gameStateUpdate(float f)
 	{
 		gameState = MAIN_MENU;
 		timeInState = 0;
+		recordHighScore(score);
+		score = 0;
 	}
 
 }
@@ -371,6 +375,10 @@ void Rogue::update()
 		camera.x = GAME_WIDTH/2 - player.getCenterX();
 		camera.y = GAME_HEIGHT/2 - player.getCenterY();
 		
+		if(!flinch)
+		{
+			player.setHealth(min(player.getHealth()+5*frameTime,playerNS::MAX_HEALTH));
+		}
 		healthFilter = D3DCOLOR_ARGB(int((1-player.getHealth()/playerNS::MAX_HEALTH)*255),255,255,255);		
 		if(player.getHealth() <= 0)
 		{
@@ -422,8 +430,10 @@ void Rogue::update()
 //=============================================================================
 void Rogue::render()
 {
+	stringstream scorestr;
+	scorestr << "Your Score: ";
+	scorestr << score;
 	graphics->spriteBegin();
-
 	switch(gameState)
 	{
 	case MAIN_MENU:
@@ -479,11 +489,15 @@ void Rogue::render()
 		break;
 	case GAME_OVER:
 		GameOverSplash.draw();
-		loseFont->print("MISSION FAILED",GAME_WIDTH/3,GAME_HEIGHT/4);
+		loseFont->print("MISSION FAILED",GAME_WIDTH/5,GAME_HEIGHT/4);
+		loseFont->print("Press Enter to return...",GAME_WIDTH/5,3*GAME_HEIGHT/4);
+		loseFont->print(scorestr.str(),GAME_WIDTH/5,GAME_HEIGHT/2);
 		break;
 	case GAME_WIN:
 		GameWinSplash.draw();
-		winFont->print("MISSION SUCCESS!",GAME_WIDTH/3,GAME_HEIGHT/4);
+		winFont->print("MISSION SUCCESS!",GAME_WIDTH/5,GAME_HEIGHT/4);
+		winFont->print("Press Enter to return!",GAME_WIDTH/5,3*GAME_HEIGHT/4);
+		winFont->print(scorestr.str(),GAME_WIDTH/5,GAME_HEIGHT/2);
 		break;
 	}
 	graphics->spriteEnd();
@@ -526,6 +540,7 @@ void Rogue::collisions()
 	case LEVEL3:
 		if(player.collidesWith(levelExit,collisionVector))
 		{
+			score += 1000;
 			levelComplete = true;
 		}
 
@@ -564,6 +579,7 @@ void Rogue::collisions()
 							crate[j].CollidedThisFrame=true;
 							if (guard[i].getHealth()<=0.0f){
 								guard[i].setActive(false);
+								score += 100;
 							}
 						}
 					}
@@ -617,6 +633,58 @@ void Rogue::ElasticCollision(float m1, float m2, VECTOR2 vi1, VECTOR2 vi2, VECTO
 	vf2 = D3DXVECTOR2(vxf2,vyf2);
 }
 
+void Rogue::recordHighScore(int s)
+{
+	int scores[NUM_SCORES+1];
+	
+
+	for(int i=0; i<NUM_SCORES; i++){
+		scores[i] = 0;
+	}
+
+	ofstream outfile;
+	outfile.open("scores.txt");
+	outfile.close();
+	ifstream infile;
+	infile.open("scores.txt");
+	if(infile.is_open())
+	{
+		int i=0;
+		while(infile >> scores[i])
+		{
+			i++;
+//			string line;
+//			getline(infile,line);
+//			scores[i] = atoi(line.c_str());
+		}
+		bool sorted = false;
+		scores[NUM_SCORES] = s;
+		while(!sorted)
+		{
+			sorted = true;
+			for (int i = 0; i<NUM_SCORES+1; i++)
+			{
+				if (scores[i] < scores[i+1])
+				{
+					swap(scores[i],scores[i+1]);
+					sorted = false;
+				}
+			}
+		}
+		infile.close();
+		outfile.open("scores.txt");
+		if(outfile.is_open())
+		{
+			for(int i=0; i<NUM_SCORES; i++)
+			{
+				outfile << scores[i];
+				outfile << std::endl;
+			}
+			outfile.close();
+		}
+	}
+	
+}
 
 //=============================================================================
 // The graphics device was lost.
