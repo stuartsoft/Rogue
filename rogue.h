@@ -77,6 +77,7 @@ public:
 	void render();
 	void releaseAll();
 	void resetAll();
+	void ElasticCollision(float m1, float m2, VECTOR2 vi1, VECTOR2 vi2, VECTOR2 &vf1, VECTOR2 &vf2);
 
 };
 

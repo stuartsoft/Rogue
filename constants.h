@@ -122,7 +122,7 @@ const UCHAR E_KEY		 = 0x45;
 // texture images
 const char PLAYER_TEXTURE[] = "images\\player2x.png";
 const char WALL_TEXTURE[] = "images\\wall2x.png";
-const char EXIT_TEXTURE[] = "images\\exit.png";
+const char EXIT_TEXTURE[] = "images\\exit2x.png";
 
 
 // splash screen images

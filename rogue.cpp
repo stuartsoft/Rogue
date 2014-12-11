@@ -421,10 +421,6 @@ void Rogue::render()
 		else
 			player.draw(camera, graphicsNS::ALPHA25);
 
-		for (int i=0;i<numWalls;i++){
-			if(wall[i].getActive())
-				wall[i].draw(camera);
-		}
 		for (int i=0;i<numCrates;i++){
 			if(crate[i].getActive())
 				crate[i].draw(camera);
@@ -440,6 +436,10 @@ void Rogue::render()
 			levelExit.draw();
 			levelExit.setX(levelExit.getX()-camera.x);
 			levelExit.setY(levelExit.getY()-camera.y);
+		}
+
+		for (int i=0;i<numWalls;i++){
+			wall[i].draw(camera);
 		}
 		WeaponHud.draw(camera);
 		break;
@@ -540,10 +540,10 @@ void Rogue::collisions()
 						if(crate[j].collidesWith(guard[i],collisionVector) && guard[i].flinchTime > FLINCH_DURATION){
 							guard[i].setHealth(guard[i].getHealth() - guardNS::COLLISION_DAMAGE);
 							guard[i].flinchTime = 0.0f;
+							crate[j].CollidedThisFrame=true;
 							if (guard[i].getHealth()<=0.0f){
 								guard[i].setActive(false);
 							}
-
 						}
 					}
 				}
@@ -557,23 +557,11 @@ void Rogue::collisions()
 			for (int j=0;j<numWalls;j++){
 				if(crate[i].collidesWith(wall[j], collisionVector)){
 					//calculate elastic collision physics here
-					float m1 = crate[i].getMass();
-					float m2 = 1000.0f;
-					VECTOR2 vi1 = crate[i].getVelocity();
-					VECTOR2 vi2 = D3DXVECTOR2(0,0);
-	
-					float vxf1 = (vi1.x *(m1-m2) +2*m2*vi2.x)/(m1+m2);
-					float vyf1 = (vi1.y *(m1-m2) +2*m2*vi2.y)/(m1+m2);
-	
-					VECTOR2 vf1 = D3DXVECTOR2(vxf1,vyf1);
-
-				
+					VECTOR2 vf1,vf2;
+					ElasticCollision(crate[i].getMass(), 10000.0f,crate[i].getVelocity(),VECTOR2(0.0f,0.0f),vf1,vf2);
 					crate[i].setPositionX(crate[i].getPositionX() - crate[i].getVelocity().x*frameTime);
 					crate[i].setPositionY(crate[i].getPositionY() - crate[i].getVelocity().y*frameTime);
-
-					crate[i].setVelocity(D3DXVECTOR2(0,0));
 					crate[i].setVelocity(vf1);
-						
 					crate[i].CollidedThisFrame = true;
 				}
 			}
@@ -584,26 +572,10 @@ void Rogue::collisions()
 				if (i!=j && !crate[i].CollidedThisFrame && !crate[i].CollidedThisFrame){
 					if (crate[i].collidesWith(crate[j],collisionVector)){
 						//calculate elastic collision physics here
-						float m1 = crate[i].getMass();
-						float m2 = crate[j].getMass();
-						VECTOR2 vi1 = crate[i].getVelocity();
-						VECTOR2 vi2 = crate[j].getVelocity();
-
-						float vxf1 = (vi1.x *(m1-m2) +2*m2*vi2.x)/(m1+m2);
-						float vyf1 = (vi1.y *(m1-m2) +2*m2*vi2.y)/(m1+m2);
-
-						float vxf2 = (vi2.x * (m2-m1) + 2*m1*vi1.x)/(m1+m2);
-						float vyf2 = (vi2.y * (m2-m1) + 2*m1*vi1.y)/(m1+m2);
-
-						VECTOR2 vf1 = D3DXVECTOR2(vxf1,vyf1);
-						VECTOR2 vf2 = D3DXVECTOR2(vxf2,vyf2);
-
-						crate[i].setVelocity(D3DXVECTOR2(0,0));
-						crate[j].setVelocity(D3DXVECTOR2(0,0));
-
+						VECTOR2 vf1, vf2;
+						ElasticCollision(crate[i].getMass(), crate[j].getMass(),crate[i].getVelocity(), crate[j].getVelocity(),vf1,vf2);
 						crate[i].setVelocity(vf1);
 						crate[j].setVelocity(vf2);
-						
 						crate[i].CollidedThisFrame = true;
 						crate[j].CollidedThisFrame = true;
 					}
@@ -613,6 +585,17 @@ void Rogue::collisions()
 		
 	}
 }
+
+void Rogue::ElasticCollision(float m1, float m2, VECTOR2 vi1, VECTOR2 vi2, VECTOR2 &vf1, VECTOR2 &vf2){
+	//calculate elastic collision physics here
+	float vxf1 = (vi1.x *(m1-m2) +2*m2*vi2.x)/(m1+m2);
+	float vyf1 = (vi1.y *(m1-m2) +2*m2*vi2.y)/(m1+m2);
+	float vxf2 = (vi2.x * (m2-m1) + 2*m1*vi1.x)/(m1+m2);
+	float vyf2 = (vi2.y * (m2-m1) + 2*m1*vi1.y)/(m1+m2);
+	vf1 = D3DXVECTOR2(vxf1,vyf1);
+	vf2 = D3DXVECTOR2(vxf2,vyf2);
+}
+
 
 //=============================================================================
 // The graphics device was lost.
