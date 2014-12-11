@@ -77,6 +77,7 @@ private:
     bool newLine;                               // true on start of new line
     int  mouseX, mouseY;                        // mouse screen coordinates
     int  mouseRawX, mouseRawY;                  // high-definition mouse data
+	int mouseWheelDelta;						// number of lines the mouse wheel was scrolled
     RAWINPUTDEVICE Rid[1];                      // for high-definition mouse
     bool mouseCaptured;                         // true if mouse captured
     bool mouseLButton;                          // true if left mouse button down
@@ -121,6 +122,8 @@ public:
 
     // Clear the specified key press
     void clearKeyPress(UCHAR vkey);
+	
+	void clearMouseWheelDelta(){mouseWheelDelta = 0;}
 
     // Clear specified input buffers where what is any combination of
     // KEYS_DOWN, KEYS_PRESSED, MOUSE, TEXT_IN or KEYS_MOUSE_TEXT.
@@ -145,6 +148,8 @@ public:
     // Reads raw mouse data into mouseRawX, mouseRawY
     // This routine is compatible with a high-definition mouse
     void mouseRawIn(LPARAM);
+
+	void mouseWheelIn(WPARAM);
 
     // Save state of mouse button
     void setMouseLButton(bool b) { mouseLButton = b; }
@@ -171,6 +176,8 @@ public:
     // Return raw mouse Y movement. Up is <0, Down is >0
     // Compatible with high-definition mouse.
     int  getMouseRawY()     const { return mouseRawY; }
+
+	int getMouseWheelDelta() const {return mouseWheelDelta;}
 
     // Return state of left mouse button.
     bool getMouseLButton()  const { return mouseLButton; }

@@ -25,6 +25,7 @@ Input::Input()
     mouseY = 0;                         // screen Y
     mouseRawX = 0;                      // high-definition X
     mouseRawY = 0;                      // high-definition Y
+	mouseWheelDelta = 0;
     mouseLButton = false;               // true if left mouse button is down
     mouseMButton = false;               // true if middle mouse button is down
     mouseRButton = false;               // true if right mouse button is down
@@ -131,6 +132,11 @@ void Input::keyIn(WPARAM wParam)
     if ((char)wParam == '\r')               // if return    
         newLine = true;                     // start new line
 }
+
+void Input::mouseWheelIn(WPARAM wParam){
+	mouseWheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+}
+
 
 //=============================================================================
 // Returns true if the specified VIRTUAL KEY is down, otherwise false.

@@ -56,6 +56,9 @@ LRESULT Game::messageHandler( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam 
             case WM_MOUSEMOVE:                      // mouse moved
                 input->mouseIn(lParam);
                 return 0;
+			case WM_MOUSEWHEEL:
+				input->mouseWheelIn(wParam);
+				return 0;
             case WM_INPUT:                          // raw mouse data in
                 input->mouseRawIn(lParam);
                 return 0;

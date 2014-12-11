@@ -57,6 +57,20 @@ void Weaponhud::update(float frameTime)
 		setCurrentFrame(4);
 		time(&timesincekeypress);
 	}
+	else if (input->getMouseWheelDelta()!=0){
+		if (input->getMouseWheelDelta()>0)
+			setCurrentFrame(getCurrentFrame()-1);
+		else if (input->getMouseWheelDelta() <0)
+			setCurrentFrame(getCurrentFrame()+1);
+
+		if (getCurrentFrame()<=0)
+			setCurrentFrame(4);
+		else if (getCurrentFrame()>4)
+			setCurrentFrame(1);
+
+		input->clearMouseWheelDelta();
+		time(&timesincekeypress);
+	}
 	else if (difftime(tnow, timesincekeypress)>2.0f){
 		setCurrentFrame(0);
 	}
