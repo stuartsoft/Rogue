@@ -33,6 +33,15 @@ void Player::draw(VECTOR2 cam)
 	spriteData.y -= cam.y;
 }
 
+void Player::draw(VECTOR2 cam, DWORD color)
+{
+	spriteData.x += cam.x;
+	spriteData.y += cam.y;
+	Image::draw(color);              // draw Player
+	spriteData.x -= cam.x;
+	spriteData.y -= cam.y;
+}
+
 void Player::update(float frameTime)
 {
 	Entity::update(frameTime);

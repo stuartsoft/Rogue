@@ -90,6 +90,7 @@ const int MAX_WALLS = 500;
 const int MAX_CRATES = 50;
 const int MAX_GUARDS = 50;
 
+const float FLINCH_DURATION = 0.5f;
 const float ALERT_DURATION = 5.0f;
 const float WALKING_NOISE = 500.0f;
 const float SNEAKING_NOISE = 200.0f;

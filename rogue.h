@@ -62,6 +62,8 @@ private:
 
 	void loadLevel();
 	bool levelComplete;
+	bool flinch;
+	float flinchTime;
 
 public:
 	Rogue();

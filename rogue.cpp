@@ -47,6 +47,7 @@ void Rogue::initialize(HWND hwnd)
 	player.setCurrentFrame(0);
 	player.setX(0);
 	player.setY(0);
+	player.setHealth(playerNS::MAX_HEALTH);
 
 	if(!WallTM.initialize(graphics,WALL_TEXTURE))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error init wall texture"));
@@ -142,6 +143,8 @@ void Rogue::initialize(HWND hwnd)
 	levelComplete = false;
 	timeInState = 0;
 	time(&tsoundfx);
+	flinch = false;
+	flinchTime = 0.0f;
 
 	return;
 }
@@ -155,6 +158,9 @@ void Rogue::reset()
 	player.setHealth(playerNS::MAX_HEALTH);
 	player.setPositionX(0);
 	player.setPositionY(0);
+	player.setHealth(playerNS::MAX_HEALTH);
+	flinch = false;
+	flinchTime = 0.0f;
 
 	for(int i=0; i<MAX_WALLS; i++)
 	{
@@ -171,10 +177,7 @@ void Rogue::reset()
 	}
 	for(int i=0; i<MAX_GUARDS; i++)
 	{
-		guard[i].setActive(false);
-		guard[i].setVelocity(VECTOR2(0,0));
-		guard[i].setPositionX(0);
-		guard[i].setPositionY(0);
+		guard[i].reset();
 	}
 	levelExit.setActive(false);
 	levelExit.setX(0);
@@ -350,6 +353,24 @@ void Rogue::update()
 		camera.x = GAME_WIDTH/2 - player.getCenterX();
 		camera.y = GAME_HEIGHT/2 - player.getCenterY();
 		
+		if(player.getHealth() <= 0)
+		{
+			gameState = GAME_OVER;
+			timeInState = 0.0f;
+			audio->playCue("Hit");
+			break;
+		}
+
+		if(flinch)
+		{
+			flinchTime += frameTime;
+			if(flinchTime >= FLINCH_DURATION)
+			{
+				flinch = false;
+				flinchTime = 0;
+			}
+		}
+
 		int tempx = (((int(camera.x))%(256)) - GAME_WIDTH/2);
 		int tempy = (((int(camera.y))%(256)) - GAME_HEIGHT/2);
 		background.setX(tempx);
@@ -395,9 +416,10 @@ void Rogue::render()
 	case LEVEL3:
 		background.draw();
 		
-//		if(!seen){
-		player.draw(camera);
-//		}
+		if(!flinch)
+			player.draw(camera);
+		else
+			player.draw(camera, graphicsNS::ALPHA25);
 
 		for (int i=0;i<numWalls;i++){
 			if(wall[i].getActive())
@@ -503,7 +525,17 @@ void Rogue::collisions()
 				}
 			}
 		}
-	
+		
+		for(int i=0; i<numGuards; i++)
+		{
+			if(!flinch && guard[i].collidesWith(player,collisionVector))
+			{
+				player.setHealth(player.getHealth() - guardNS::COLLISION_DAMAGE);
+				flinch = true;
+				flinchTime = 0.0f;
+			}
+		}
+
 		for (int i=0;i< numCrates;i++){
 			if (crate[i].collidesWith(player, collisionVector)){
 				crate[i].setVelocity(player.getVelocity()*2.5);
