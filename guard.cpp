@@ -29,13 +29,17 @@ Guard::Guard()
 
 	alert = false;
 	alertTime = 0;
+	flinchTime = FLINCH_DURATION;//guards are ready to be hurt >:D
 }
 
 void Guard::draw(VECTOR2 cam)
 {
 	spriteData.x += cam.x;
 	spriteData.y += cam.y;
-	Image::draw();              // draw Player
+	if (flinchTime >= FLINCH_DURATION)
+		Image::draw();              // draw Guard
+	else
+		Image::draw(graphicsNS::ALPHA25);
 	spriteData.x -= cam.x;
 	spriteData.y -= cam.y;
 }
@@ -43,6 +47,8 @@ void Guard::draw(VECTOR2 cam)
 void Guard::update(float frameTime)
 {
 	Entity::update(frameTime);
+
+	flinchTime+=frameTime;
 
 	if(alert)
 	{

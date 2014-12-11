@@ -8,7 +8,7 @@ namespace playerNS{
 	const int HEIGHT = 68;                  // image height
 	const int X = GAME_WIDTH/2 - WIDTH/2;   // location on screen
 	const int Y = GAME_HEIGHT/2 - HEIGHT/2;
-	const float MAX_HEALTH = 100.0f;
+	const float MAX_HEALTH = 10000.0f;
 	const int MAX_SPEED_X = 750;
 	const int MAX_SPEED_Y = 750;
 	const int SPEED = 200;

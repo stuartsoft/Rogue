@@ -12,7 +12,7 @@ namespace guardNS{
 	const float MAX_HEALTH = 100.0f;
 	const int MAX_SPEED_X = 750;
 	const int MAX_SPEED_Y = 750;
-	const int SPEED = 140;
+	const int SPEED = 100;
 	const float MASS = 5.0f;//5Kg
 
 	const int TEXTURE_COL = 4;
@@ -31,7 +31,7 @@ namespace guardNS{
 	const float VISION_ANGLE = PI/float(4);
 	const int VISION_LENGTH = 200.0f;
 
-	const float COLLISION_DAMAGE = 25;
+	const float COLLISION_DAMAGE = 50.0f;
 }
 
 namespace swordNS {
@@ -50,6 +50,8 @@ private:
 	float alertTime;
 
 public:
+	float flinchTime;
+
 	Guard();
 
 	void Guard::draw(VECTOR2 cam);

@@ -519,7 +519,7 @@ void Rogue::collisions()
 			}
 			for(int j=0; j<numGuards ; j++)
 			{
-				if(wall[i].collidesWith(guard[j], collisionVector)){
+				if(guard[j].getActive() && wall[i].collidesWith(guard[j], collisionVector)){
 					guard[j].setPositionX(guard[j].getPositionX() - guard[j].getVelocity().x*frameTime);
 					guard[j].setPositionY(guard[j].getPositionY() - guard[j].getVelocity().y*frameTime);
 				}
@@ -528,11 +528,25 @@ void Rogue::collisions()
 		
 		for(int i=0; i<numGuards; i++)
 		{
-			if(!flinch && guard[i].collidesWith(player,collisionVector))
-			{
-				player.setHealth(player.getHealth() - guardNS::COLLISION_DAMAGE);
-				flinch = true;
-				flinchTime = 0.0f;
+			if (guard[i].getActive()){
+				if(!flinch && guard[i].collidesWith(player,collisionVector))
+				{
+					player.setHealth(player.getHealth() - guardNS::COLLISION_DAMAGE);
+					flinch = true;
+					flinchTime = 0.0f;
+				}
+				for(int j=0;j<numCrates;j++){
+					if(!crate[j].CollidedThisFrame && D3DXVec2Length(&crate[j].getVelocity())>0.5){
+						if(crate[j].collidesWith(guard[i],collisionVector) && guard[i].flinchTime > FLINCH_DURATION){
+							guard[i].setHealth(guard[i].getHealth() - guardNS::COLLISION_DAMAGE);
+							guard[i].flinchTime = 0.0f;
+							if (guard[i].getHealth()<=0.0f){
+								guard[i].setActive(false);
+							}
+
+						}
+					}
+				}
 			}
 		}
 
