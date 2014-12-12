@@ -52,6 +52,7 @@ private:
 	TextDX* splashFont;
 	TextDX* winFont;
 	TextDX* loseFont;
+	TextDX* scoreFont;
 
 	TextureManager backgroundtm;
 	Image background;
@@ -59,8 +60,8 @@ private:
 	TextureManager SplashTM, GameOverTM, GameWinTM, TutorialTM;
 	Image Splash, GameOverSplash, GameWinSplash, Tutorial;
 
-	TextureManager MainMenuTM;
-	Image MainMenu;
+	TextureManager MainMenuTM, CheatsIndicatorTM;
+	Image MainMenu, CheatsIndicator;
 
 	TextureManager DarknessTM, RedDarknessTM;
 	Image Darkness, RedDarkness;
@@ -73,6 +74,7 @@ private:
 	Menu* menu;
 
 	int score;
+	std::string scores;
 
 	void loadLevel();
 	bool levelComplete;
@@ -82,7 +84,11 @@ private:
 	bool prevMouseRState;
 	DWORD healthFilter;
 
+	bool cheats;
+	bool enterLastFrame;
+
 	void recordHighScore(int s);
+	std::string generateScoreString();
 
 public:
 	Rogue();

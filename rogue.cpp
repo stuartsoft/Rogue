@@ -19,6 +19,7 @@ Rogue::Rogue()
 	splashFont = new TextDX;
 	winFont = new TextDX;
 	loseFont = new TextDX;
+	scoreFont = new TextDX;
 }
 
 //=============================================================================
@@ -30,6 +31,7 @@ Rogue::~Rogue()
 	SAFE_DELETE(splashFont);
 	SAFE_DELETE(winFont);
 	SAFE_DELETE(loseFont);
+	SAFE_DELETE(scoreFont);
 }
 
 //=============================================================================
@@ -105,6 +107,13 @@ void Rogue::initialize(HWND hwnd)
 	if (!background.initialize(graphics, 2560, 1600,0,&backgroundtm))
 		throw(GameError(gameErrorNS::WARNING, "background not initialized"));
 
+	if(!CheatsIndicatorTM.initialize(graphics, "images\\cheats.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init cheats texture"));
+	if (!CheatsIndicator.initialize(graphics, 100, 75, 0, &CheatsIndicatorTM))
+		throw(GameError(gameErrorNS::WARNING, "cheats img not initialized"));
+	CheatsIndicator.setX(GAME_WIDTH - 100);
+	CheatsIndicator.setY(0);
+
 	if(!MainMenuTM.initialize(graphics, "images\\menu.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init menu background texture"));
 	if (!MainMenu.initialize(graphics, 1280, 720,0,&MainMenuTM))
@@ -147,10 +156,13 @@ void Rogue::initialize(HWND hwnd)
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
 	if(loseFont->initialize(graphics, 52, true, false, "Stencil") == false)
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
-	
+	if(scoreFont->initialize(graphics, 24, false, true, "Stencil") == false)
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
+
 	splashFont->setFontColor(graphicsNS::WHITE);
 	winFont->setFontColor(graphicsNS::BLACK);
 	loseFont->setFontColor(graphicsNS::RED);
+	scoreFont->setFontColor(graphicsNS::WHITE);
 
 	graphics->setBackColor(graphicsNS::GRAY);
 
@@ -170,6 +182,9 @@ void Rogue::initialize(HWND hwnd)
 	flinch = false;
 	flinchTime = 0.0f;
 	healthFilter = 0;
+	scores = generateScoreString();
+	cheats = false;
+	enterLastFrame = false;
 
 	for (int i=0;i<NUM_WEAPONS;i++){
 		weapons[0][i] = new Shuriken();
@@ -184,6 +199,7 @@ void Rogue::initialize(HWND hwnd)
 		((C4*)weapons[1][i])->setActive(false);
 		((C4*)weapons[1][i])->setCurrentFrame(1);//shuriken image
 	}
+
 	return;
 }
 
@@ -371,11 +387,13 @@ void Rogue::gameStateUpdate(float f)
 		timeInState = 0;
 		recordHighScore(score);
 		score = 0;
+		scores = generateScoreString();
 	}
 	if(gameState == TUTORIAL && timeInState >= 0.5f && input->isKeyDown(ENTER_KEY))
 	{
 		gameState = MAIN_MENU;
 		timeInState = 0;
+		scores = generateScoreString();
 	}
 }
 
@@ -395,11 +413,20 @@ void Rogue::update()
 	{
 	case MAIN_MENU:
 		menu->update();
-
-		if(input->isKeyDown(ENTER_KEY) && menu->getSelectedItem() == 3)
+		
+		if(!enterLastFrame && input->isKeyDown(ENTER_KEY) && menu->getSelectedItem() == 3)
 		{
 			exitGame();
 		}
+		if(!enterLastFrame && input->isKeyDown(ENTER_KEY) && menu->getSelectedItem() == 2)
+		{
+			cheats = !cheats;
+		}
+		
+		if(enterLastFrame)
+			enterLastFrame = false;
+		if(input->isKeyDown(ENTER_KEY))
+			enterLastFrame = true;
 
 		break;
 	case LEVEL1:
@@ -430,7 +457,8 @@ void Rogue::update()
 			aimvec*=500;
 			
 			//deduct ammo from weapon
-			WeaponHud.setAmmoForWeapon(WeaponHud.getAmmoForCurrentWeapon()-1,WeaponHud.getCurrentWeapon());
+			if(!cheats)
+				WeaponHud.setAmmoForWeapon(WeaponHud.getAmmoForCurrentWeapon()-1,WeaponHud.getCurrentWeapon());
 			switch (WeaponHud.getCurrentWeapon())
 			{
 			case 0:
@@ -537,6 +565,9 @@ void Rogue::render()
 	{
 	case MAIN_MENU:
 		MainMenu.draw();
+		scoreFont->print(scores,(5*GAME_WIDTH)/6,GAME_HEIGHT/10);
+		if(cheats)
+			CheatsIndicator.draw();
 		menu->displayMenu();
 		break;
 	case LEVEL1:
@@ -581,8 +612,9 @@ void Rogue::render()
 		Darkness.draw();
 		RedDarkness.draw(healthFilter);
 		WeaponHud.draw(camera);
+		if(cheats)
+			CheatsIndicator.draw();
 		break;
-
 	case SPLASH1:
 		Splash.draw();
 		splashFont->print("ALPHA MISSION: BEGIN",GAME_WIDTH/4,GAME_HEIGHT/4);
@@ -703,12 +735,13 @@ void Rogue::collisions()
 							weapons[0][j]->setActive(false);
 							if (guard[i].getHealth()<=0.0f){
 								guard[i].setActive(false);
+								score += 200;
 							}
 						}
 					}
 				}
 				
-				if(!flinch && guard[i].collidesWith(player,collisionVector))
+				if(!flinch && !cheats && guard[i].collidesWith(player,collisionVector))
 				{
 					player.setHealth(player.getHealth() - guardNS::COLLISION_DAMAGE);
 					flinch = true;
@@ -783,7 +816,6 @@ void Rogue::ElasticCollision(float m1, float m2, VECTOR2 vi1, VECTOR2 vi2, VECTO
 void Rogue::recordHighScore(int s)
 {
 	int scores[NUM_SCORES+1];
-	
 
 	for(int i=0; i<NUM_SCORES; i++){
 		scores[i] = 0;
@@ -800,9 +832,6 @@ void Rogue::recordHighScore(int s)
 		while(infile >> scores[i])
 		{
 			i++;
-//			string line;
-//			getline(infile,line);
-//			scores[i] = atoi(line.c_str());
 		}
 		bool sorted = false;
 		scores[NUM_SCORES] = s;
@@ -833,6 +862,21 @@ void Rogue::recordHighScore(int s)
 	
 }
 
+string Rogue::generateScoreString()
+{
+	stringstream out;
+	ifstream file;
+	file.open("scores.txt");
+	int scores[NUM_SCORES];
+	out << "High Scores:" << endl;
+	for(int i=0; i<NUM_SCORES; i++){
+		file >> scores[i];
+		if(scores[i] != 0)
+			out << (i+1) << ". " << scores[i] << endl;
+	}
+	return out.str();
+}
+
 //=============================================================================
 // The graphics device was lost.
 // Release all reserved video memory so graphics device may be reset.
@@ -842,6 +886,7 @@ void Rogue::releaseAll()
 	splashFont->onLostDevice();
 	winFont->onLostDevice();
 	loseFont->onLostDevice();
+	scoreFont->onLostDevice();
 	PlayerTM.onLostDevice();
 	GuardTM.onLostDevice();
 	WallTM.onLostDevice();
@@ -856,6 +901,7 @@ void Rogue::releaseAll()
 	GameWinTM.onLostDevice();
 	TutorialTM.onLostDevice();
 	MainMenuTM.onLostDevice();
+	CheatsIndicatorTM.onLostDevice();
 	Game::releaseAll();
 	return;
 }
@@ -869,6 +915,7 @@ void Rogue::resetAll()
 	splashFont->onResetDevice();
 	winFont->onResetDevice();
 	loseFont->onResetDevice();
+	scoreFont->onResetDevice();
 	PlayerTM.onResetDevice();
 	GuardTM.onResetDevice();
 	WallTM.onResetDevice();
@@ -883,6 +930,7 @@ void Rogue::resetAll()
 	GameWinTM.onResetDevice();
 	TutorialTM.onResetDevice();
 	MainMenuTM.onResetDevice();
+	CheatsIndicatorTM.onResetDevice();
 	Game::resetAll();
 	return;
 }
