@@ -75,6 +75,9 @@
     <ClCompile Include="shuriekn.cpp">
       <Filter>Source Files\Weapons</Filter>
     </ClCompile>
+    <ClCompile Include="c4.cpp">
+      <Filter>Source Files\Weapons</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio.h">
@@ -132,6 +135,9 @@
       <Filter>Header Files\Weapons</Filter>
     </ClInclude>
     <ClInclude Include="weapon.h">
+      <Filter>Header Files\Weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="c4.h">
       <Filter>Header Files\Weapons</Filter>
     </ClInclude>
   </ItemGroup>

@@ -92,6 +92,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="audio.cpp" />
+    <ClCompile Include="c4.cpp" />
     <ClCompile Include="crate.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="game.cpp" />
@@ -112,6 +113,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio.h" />
+    <ClInclude Include="c4.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="crate.h" />
     <ClInclude Include="entity.h" />
