@@ -482,7 +482,7 @@ void Rogue::update()
 				for (int i=0;i<NUM_WEAPONS;i++){
 					if (!weapons[0][i]->getActive()){
 						weapons[0][i]->setActive(true);//activate weapon
-						weapons[0][i]->setVelocity(aimvec);
+						weapons[0][i]->setVelocity(aimvec/5);
 						weapons[0][i]->setPosition(player.getPosition());
 						tmouseclick = clock();
 						break;
@@ -546,7 +546,7 @@ void Rogue::update()
 					for (int j=0;j<numWalls;j++){
 						if(wall[j].getActive()){	
 							int tempdist = pow(wall[j].getCenterX()-weapons[1][i]->getCenterX(),2) + pow(wall[j].getCenterY()-weapons[1][i]->getCenterY(),2);
-							if (tempdist < 90000 && tempdist < distToNearestWallsq){
+							if (tempdist < 40000 && tempdist < distToNearestWallsq){
 								distToNearestWallsq = tempdist;
 								nearestWall = j;
 							}
@@ -562,14 +562,14 @@ void Rogue::update()
 					//kill guards near c4
 					for (int j=0;j<numGuards;j++){
 						int tempdist = pow(guard[j].getCenterX()-weapons[1][i]->getCenterX(),2) + pow(guard[j].getCenterY()-weapons[1][i]->getCenterY(),2);
-						if (tempdist < 90000){//300 units
+						if (tempdist < 40000){//200 units
 							guard[j].setActive(false);
 						}
 					}
 					
 					//kill player if standing too close to c4
 					int tempdist = pow(player.getCenterX()-weapons[1][i]->getCenterX(),2) + pow(player.getCenterY()-weapons[1][i]->getCenterY(),2);
-					if (tempdist < 90000)
+					if (tempdist < 40000)
 						player.setHealth(-5.0f);
 				}
 				else
