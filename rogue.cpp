@@ -105,6 +105,11 @@ void Rogue::initialize(HWND hwnd)
 	if (!background.initialize(graphics, 2560, 1600,0,&backgroundtm))
 		throw(GameError(gameErrorNS::WARNING, "background not initialized"));
 
+	if(!MainMenuTM.initialize(graphics, "images\\menu.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init menu background texture"));
+	if (!MainMenu.initialize(graphics, 1280, 720,0,&MainMenuTM))
+		throw(GameError(gameErrorNS::WARNING, "menu background not initialized"));
+
 	if(!SplashTM.initialize(graphics, "images\\splash.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init splash1 texture"));
 	if (!Splash.initialize(graphics, 1280, 720,0,&SplashTM))
@@ -112,13 +117,29 @@ void Rogue::initialize(HWND hwnd)
 
 	if(!GameOverTM.initialize(graphics, "images\\background2x.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init lose splash texture"));
-	if (!GameOverSplash.initialize(graphics, 1280, 800,0,&GameOverTM))
+	if (!GameOverSplash.initialize(graphics, 1280, 800, 0, &GameOverTM))
 		throw(GameError(gameErrorNS::WARNING, "lose splash not initialized"));
 
 	if(!GameWinTM.initialize(graphics, "images\\background2x.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init win splash texture"));
-	if (!GameWinSplash.initialize(graphics, 1280, 800,0,&GameWinTM))
+	if (!GameWinSplash.initialize(graphics, 1280, 800, 0, &GameWinTM))
 		throw(GameError(gameErrorNS::WARNING, "win splash not initialized"));
+
+	if(!TutorialTM.initialize(graphics, "images\\tutorial.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init tutorial texture"));
+	if (!Tutorial.initialize(graphics, 1280, 720, 0, &TutorialTM))
+		throw(GameError(gameErrorNS::WARNING, "tutorial not initialized"));
+	Tutorial.setX(0);
+	Tutorial.setY(0);
+
+	if(!DarknessTM.initialize(graphics, "images\\darkness.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init darkness texture"));
+	if(!Darkness.initialize(graphics, 1280, 720,0,&DarknessTM))
+		throw(GameError(gameErrorNS::WARNING, "darkness not initialized"));
+	if(!RedDarknessTM.initialize(graphics, "images\\reddarkness.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init darkness texture"));
+	if(!RedDarkness.initialize(graphics, 1280, 720,0,&RedDarknessTM))
+		throw(GameError(gameErrorNS::WARNING, "darkness not initialized"));
 
 	if(splashFont->initialize(graphics, 52, true, false, "Stencil") == false)
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
@@ -139,6 +160,8 @@ void Rogue::initialize(HWND hwnd)
 	camera.x = 0;
 	camera.y = 0;
 
+	score = 0;
+
 	gameState = MAIN_MENU;
 	levelComplete = false;
 	timeInState = 0;
@@ -146,6 +169,7 @@ void Rogue::initialize(HWND hwnd)
 	tmouseclick = clock();
 	flinch = false;
 	flinchTime = 0.0f;
+	healthFilter = 0;
 
 	for (int i=0;i<NUM_WEAPONS;i++){
 		weapons[0][i] = new Shuriken();
@@ -292,6 +316,11 @@ void Rogue::gameStateUpdate(float f)
 		levelComplete = false;
 		reset();
 	}
+	if(gameState == MAIN_MENU && timeInState > 0.5f && input->isKeyDown(ENTER_KEY) && menu->getSelectedItem() == 1)
+	{
+		gameState = TUTORIAL;
+		timeInState = 0;
+	}
 	if(gameState == SPLASH1 && timeInState >= 2.5f)
 	{
 		gameState = LEVEL1;
@@ -334,8 +363,14 @@ void Rogue::gameStateUpdate(float f)
 	{
 		gameState = MAIN_MENU;
 		timeInState = 0;
+		recordHighScore(score);
+		score = 0;
 	}
-
+	if(gameState == TUTORIAL && timeInState >= 0.5f && input->isKeyDown(ENTER_KEY))
+	{
+		gameState = MAIN_MENU;
+		timeInState = 0;
+	}
 }
 
 //=============================================================================
@@ -368,6 +403,11 @@ void Rogue::update()
 		camera.x = GAME_WIDTH/2 - player.getCenterX();
 		camera.y = GAME_HEIGHT/2 - player.getCenterY();
 		
+		if(!flinch)
+		{
+			player.setHealth(min(player.getHealth()+5*frameTime,playerNS::MAX_HEALTH));
+		}
+		healthFilter = D3DCOLOR_ARGB(int((1-player.getHealth()/playerNS::MAX_HEALTH)*255),255,255,255);		
 		if(player.getHealth() <= 0)
 		{
 			gameState = GAME_OVER;
@@ -453,13 +493,15 @@ void Rogue::update()
 //=============================================================================
 void Rogue::render()
 {
+	stringstream scorestr;
+	scorestr << "Your Score: ";
+	scorestr << score;
 	graphics->spriteBegin();
-
 	switch(gameState)
 	{
 	case MAIN_MENU:
+		MainMenu.draw();
 		menu->displayMenu();
-
 		break;
 	case LEVEL1:
 	case LEVEL2:
@@ -495,7 +537,8 @@ void Rogue::render()
 				((Shuriken*)weapons[0][i])->draw(camera);
 			}
 		}
-		
+		Darkness.draw();
+		RedDarkness.draw(healthFilter);
 		WeaponHud.draw(camera);
 		break;
 
@@ -513,11 +556,18 @@ void Rogue::render()
 		break;
 	case GAME_OVER:
 		GameOverSplash.draw();
-		loseFont->print("MISSION FAILED",GAME_WIDTH/3,GAME_HEIGHT/4);
+		loseFont->print("MISSION FAILED",GAME_WIDTH/5,GAME_HEIGHT/4);
+		loseFont->print("Press Enter to return...",GAME_WIDTH/5,3*GAME_HEIGHT/4);
+		loseFont->print(scorestr.str(),GAME_WIDTH/5,GAME_HEIGHT/2);
 		break;
 	case GAME_WIN:
 		GameWinSplash.draw();
-		winFont->print("MISSION SUCCESS!",GAME_WIDTH/3,GAME_HEIGHT/4);
+		winFont->print("MISSION SUCCESS!",GAME_WIDTH/5,GAME_HEIGHT/4);
+		winFont->print("Press Enter to return!",GAME_WIDTH/5,3*GAME_HEIGHT/4);
+		winFont->print(scorestr.str(),GAME_WIDTH/5,GAME_HEIGHT/2);
+		break;
+	case TUTORIAL:
+		Tutorial.draw();
 		break;
 	}
 	graphics->spriteEnd();
@@ -561,6 +611,7 @@ void Rogue::collisions()
 	case LEVEL3:
 		if(player.collidesWith(levelExit,collisionVector))
 		{
+			score += 1000;
 			levelComplete = true;
 		}
 
@@ -625,6 +676,7 @@ void Rogue::collisions()
 							crate[j].CollidedThisFrame=true;
 							if (guard[i].getHealth()<=0.0f){
 								guard[i].setActive(false);
+								score += 100;
 							}
 						}
 					}
@@ -682,6 +734,58 @@ void Rogue::ElasticCollision(float m1, float m2, VECTOR2 vi1, VECTOR2 vi2, VECTO
 	vf2 = D3DXVECTOR2(vxf2,vyf2);
 }
 
+void Rogue::recordHighScore(int s)
+{
+	int scores[NUM_SCORES+1];
+	
+
+	for(int i=0; i<NUM_SCORES; i++){
+		scores[i] = 0;
+	}
+
+	ofstream outfile;
+	outfile.open("scores.txt");
+	outfile.close();
+	ifstream infile;
+	infile.open("scores.txt");
+	if(infile.is_open())
+	{
+		int i=0;
+		while(infile >> scores[i])
+		{
+			i++;
+//			string line;
+//			getline(infile,line);
+//			scores[i] = atoi(line.c_str());
+		}
+		bool sorted = false;
+		scores[NUM_SCORES] = s;
+		while(!sorted)
+		{
+			sorted = true;
+			for (int i = 0; i<NUM_SCORES+1; i++)
+			{
+				if (scores[i] < scores[i+1])
+				{
+					swap(scores[i],scores[i+1]);
+					sorted = false;
+				}
+			}
+		}
+		infile.close();
+		outfile.open("scores.txt");
+		if(outfile.is_open())
+		{
+			for(int i=0; i<NUM_SCORES; i++)
+			{
+				outfile << scores[i];
+				outfile << std::endl;
+			}
+			outfile.close();
+		}
+	}
+	
+}
 
 //=============================================================================
 // The graphics device was lost.
@@ -700,8 +804,12 @@ void Rogue::releaseAll()
 	backgroundtm.onLostDevice();
 	WeaponhudTM.onLostDevice();
 	SplashTM.onLostDevice();
+	DarknessTM.onLostDevice();
+	RedDarknessTM.onResetDevice();
 	GameOverTM.onLostDevice();
 	GameWinTM.onLostDevice();
+	TutorialTM.onLostDevice();
+	MainMenuTM.onLostDevice();
 	Game::releaseAll();
 	return;
 }
@@ -723,8 +831,12 @@ void Rogue::resetAll()
 	backgroundtm.onResetDevice();
 	WeaponhudTM.onResetDevice();
 	SplashTM.onResetDevice();
+	DarknessTM.onResetDevice();
+	RedDarknessTM.onResetDevice();
 	GameOverTM.onResetDevice();
 	GameWinTM.onResetDevice();
+	TutorialTM.onResetDevice();
+	MainMenuTM.onResetDevice();
 	Game::resetAll();
 	return;
 }

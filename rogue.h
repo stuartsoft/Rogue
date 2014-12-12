@@ -55,8 +55,14 @@ private:
 	TextureManager backgroundtm;
 	Image background;
 
-	TextureManager SplashTM, GameOverTM, GameWinTM;
-	Image Splash, GameOverSplash, GameWinSplash;
+	TextureManager SplashTM, GameOverTM, GameWinTM, TutorialTM;
+	Image Splash, GameOverSplash, GameWinSplash, Tutorial;
+
+	TextureManager MainMenuTM;
+	Image MainMenu;
+
+	TextureManager DarknessTM, RedDarknessTM;
+	Image Darkness, RedDarkness;
 
 	GameStates gameState;
 	float timeInState;
@@ -65,12 +71,17 @@ private:
 	clock_t tmouseclick;
 	Menu* menu;
 
+	int score;
+
 	void loadLevel();
 	bool levelComplete;
 	bool flinch;
 	float flinchTime;
 	bool prevMouseLState;
 	bool prevMouseRState;
+	DWORD healthFilter;
+
+	void recordHighScore(int s);
 
 public:
 	Rogue();

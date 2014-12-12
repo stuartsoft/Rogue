@@ -24,7 +24,6 @@ Guard::Guard()
 	setFrameDelay(guardNS::FRAME_DELAY);
 
 	facingDir = entityNS::direction::none;
-	rad = 0;
 	tarVec = VECTOR2(0,0);
 
 	alert = false;
@@ -66,11 +65,6 @@ void Guard::update(float frameTime)
 
 	float vx = velocity.x;
 	float vy = velocity.y;
-	
-	if(vx != 0 && vy != 0)
-		rad = atan2(-vy,vx);
-	else
-		rad = PI/float(2);
 
 	if(vy < 0 && abs(vx) <= abs(vy))
 	{
@@ -137,8 +131,8 @@ void Guard::ai(bool &hey)
 	}
 	
 	//VECTOR2 tarVec = player.getCenterPoint() - guard[i].getCenterPoint();
-	float tarRad = atan2(dist.y,dist.x);
-	float sightRad = rad;
+	float tarRad = atan2(-dist.y,dist.x);
+	float sightRad = getVisionAngle();
 	float angle2 = tarRad - sightRad;
 	if(abs(angle2) < guardNS::VISION_ANGLE) 
 	{
@@ -195,6 +189,7 @@ void Guard::reset()
 	setPosition(VECTOR2(0,0));
 	alert = false;
 	alertTime = 0.0f;
+	setHealth(guardNS::MAX_HEALTH);
 }
 
 void Guard::setPatrol(int x, int y, bool up)
@@ -230,4 +225,37 @@ void Guard::deltaTrack(VECTOR2 tar)
 		dir.y = -1;
 	D3DXVec2Normalize(&dir,&dir);
 	setVelocity(dir*guardNS::SPEED);
+}
+
+float Guard::getVisionAngle()
+{
+	VECTOR2 v = getVelocity();
+	D3DXVec2Normalize(&v,&v);
+	float a = PI*float(3/2);
+	if(v.x == 0)
+	{
+		if(v.y < 0)
+			a = PI*float(1/2);
+		else if(v.y > 0)
+			a = PI*float(3/2);
+	}
+	else if(v.x < 0)
+	{
+		if(v.y == 0)
+			a = PI;
+		else if(v.y < 0)
+			a = PI*float(3/4);
+		else if(v.y > 0)
+			a = PI*float(5/4);
+	}
+	else
+	{
+		if(v.y == 0)
+			a = 0;
+		else if(v.y < 0)
+			a = PI*float(1/4);
+		else if(v.y > 0)
+			a = PI*float(7/4);
+	}
+	return a;
 }

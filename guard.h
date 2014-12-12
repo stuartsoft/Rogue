@@ -45,7 +45,6 @@ class Guard: public Entity{
 private:
 	entityNS::direction facingDir;
 	Entity* target;
-	float rad;
 	VECTOR2 tarVec;
 	bool alert;
 	float alertTime;
@@ -55,6 +54,9 @@ private:
 	VECTOR2 patrolTar;
 	VECTOR2 patrolPoint1;
 	VECTOR2 patrolPoint2;
+
+	void deltaTrack(VECTOR2 tar);
+	float getVisionAngle();
 
 public:
 	float flinchTime;
@@ -68,9 +70,6 @@ public:
 	void Guard::reset();
 	void setTarget(Entity* t){target = t;}
 	void setPatrol(int x, int y, bool up);
-	void deltaTrack(VECTOR2 tar);
-
-	float getRad(){return rad;}
 
 };
 
