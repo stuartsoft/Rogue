@@ -28,6 +28,9 @@ public:
 	void Weaponhud::draw(VECTOR2 cam);
 	void Weaponhud::update(float frameTime);
 	int Weaponhud::getCurrentWeapon(){return currentweapon;};
+	int Weaponhud::getAmmoForWeapon(int w){return ammo[w];};
+	int Weaponhud::getAmmoForCurrentWeapon(){return ammo[currentweapon];};
+	void Weaponhud::setAmmoForWeapon(int a,int w){ammo[w] = a;};
 };
 
 #endif

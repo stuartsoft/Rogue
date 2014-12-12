@@ -12,10 +12,10 @@ Weaponhud::Weaponhud(){
 	setScale(weaponhudNS::SCALE);
 	time(&timesincekeypress);
 	currentweapon = 0;
-	ammo[0] = 1;
-	ammo[1] = 2;
-	ammo[2] = 3;
-	ammo[3] = 4;
+	ammo[0] = NUM_WEAPONS;
+	ammo[1] = 10;
+	ammo[2] = 10;
+	ammo[3] = 10;
 	ammotext = new TextDX;
 }
 

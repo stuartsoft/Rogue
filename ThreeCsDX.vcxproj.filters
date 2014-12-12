@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Header Files\Weapons">
+      <UniqueIdentifier>{b9175af1-f407-454c-829a-669ea25bd0b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Weapons">
+      <UniqueIdentifier>{a7e06b0f-dfcb-48fb-8cb3-d2a5876426d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="audio.cpp">
@@ -61,10 +67,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="weaponhud.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Weapons</Filter>
     </ClCompile>
     <ClCompile Include="weapon.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="shuriekn.cpp">
+      <Filter>Source Files\Weapons</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -117,10 +126,13 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="weaponhud.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="shuriken.h">
+      <Filter>Header Files\Weapons</Filter>
     </ClInclude>
     <ClInclude Include="weapon.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Weapons</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
