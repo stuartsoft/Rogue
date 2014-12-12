@@ -97,9 +97,11 @@
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="graphics.cpp" />
+    <ClCompile Include="grenade.cpp" />
     <ClCompile Include="guard.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="input.cpp" />
+    <ClCompile Include="knife.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="player_BOOM.cpp" />
     <ClCompile Include="rogue.cpp" />
@@ -120,9 +122,11 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="gameError.h" />
     <ClInclude Include="graphics.h" />
+    <ClInclude Include="grenade.h" />
     <ClInclude Include="guard.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="knife.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="player_BOOM.h" />
     <ClInclude Include="rogue.h" />

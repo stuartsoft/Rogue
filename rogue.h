@@ -20,6 +20,7 @@
 #include "shuriken.h"
 #include "c4.h"
 #include <time.h>
+#include "grenade.h"
 
 #include <sstream>
 
@@ -75,6 +76,7 @@ private:
 	clock_t tsoundfx;
 	clock_t tnow;
 	clock_t tmouseclick;
+	clock_t tmusicloop;
 	Menu* menu;
 
 	int score;

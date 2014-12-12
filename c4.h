@@ -7,7 +7,7 @@
 
 namespace C4NS
 {
-	const float fusetime = 10.0f;
+	const float fusetime = 5.0f;
 }
 
 class C4 : public Weapon
@@ -21,7 +21,6 @@ public:
 	void draw(VECTOR2 cam);
     // inherited member functions
 	void update(float frameTime);
-	void testfun(){};
 	float getFuse(){return fuse;};
 	void resetFuse(){fuse = C4NS::fusetime;};
 

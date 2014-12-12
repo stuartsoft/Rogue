@@ -12,6 +12,10 @@ namespace weaponhudNS{
 
 	const int TEXTURE_COL = 2;
 	const float SCALE = 1.0f;
+	const float weapon0ammo = 9;
+	const float weapon1ammo = 1;
+	const float weapon2ammo = 9;
+	const float weapon3ammo = 1;
 }
 
 class Weaponhud: public Entity{
@@ -31,6 +35,12 @@ public:
 	int Weaponhud::getAmmoForWeapon(int w){return ammo[w];};
 	int Weaponhud::getAmmoForCurrentWeapon(){return ammo[currentweapon];};
 	void Weaponhud::setAmmoForWeapon(int a,int w){ammo[w] = a;};
+	void Weaponhud::resetAmmo(){
+		ammo[0] = weaponhudNS::weapon0ammo;
+		ammo[1] = weaponhudNS::weapon1ammo;
+		ammo[2] = weaponhudNS::weapon2ammo;
+		ammo[3] = weaponhudNS::weapon3ammo;
+	}
 };
 
 #endif

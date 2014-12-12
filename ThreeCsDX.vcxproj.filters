@@ -78,6 +78,12 @@
     <ClCompile Include="c4.cpp">
       <Filter>Source Files\Weapons</Filter>
     </ClCompile>
+    <ClCompile Include="grenade.cpp">
+      <Filter>Source Files\Weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="knife.cpp">
+      <Filter>Source Files\Weapons</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio.h">
@@ -138,6 +144,12 @@
       <Filter>Header Files\Weapons</Filter>
     </ClInclude>
     <ClInclude Include="c4.h">
+      <Filter>Header Files\Weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="grenade.h">
+      <Filter>Header Files\Weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="knife.h">
       <Filter>Header Files\Weapons</Filter>
     </ClInclude>
   </ItemGroup>

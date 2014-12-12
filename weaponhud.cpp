@@ -12,10 +12,10 @@ Weaponhud::Weaponhud(){
 	setScale(weaponhudNS::SCALE);
 	time(&timesincekeypress);
 	currentweapon = 0;
-	ammo[0] = NUM_WEAPONS;
-	ammo[1] = 10;
-	ammo[2] = 10;
-	ammo[3] = 10;
+	ammo[0] = weaponhudNS::weapon0ammo;
+	ammo[1] = weaponhudNS::weapon1ammo;
+	ammo[2] = weaponhudNS::weapon2ammo;
+	ammo[3] = weaponhudNS::weapon3ammo;
 	ammotext = new TextDX;
 }
 
@@ -34,7 +34,6 @@ void Weaponhud::initWeapons(TextureManager * tm){
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
 	ammotext->setFontColor(graphicsNS::WHITE);
 }
-
 
 void Weaponhud::draw(VECTOR2 cam)
 {

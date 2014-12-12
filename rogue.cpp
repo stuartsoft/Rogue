@@ -183,6 +183,8 @@ void Rogue::initialize(HWND hwnd)
 	timeInState = 0;
 	tsoundfx = clock();
 	tmouseclick = clock();
+	tmusicloop = clock();
+	audio->playCue("NeonLights");
 	flinch = false;
 	flinchTime = 0.0f;
 	healthFilter = 0;
@@ -204,6 +206,12 @@ void Rogue::initialize(HWND hwnd)
 			throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing weapon"));
 		((C4*)weapons[1][i])->setActive(false);
 		((C4*)weapons[1][i])->setCurrentFrame(1);//shuriken image
+
+		weapons[2][i] = new Grenade();
+		if(!((Grenade*)weapons[2][i])->initialize(this,weaponNS::WIDTH,weaponNS::HEIGHT,4,&WeaponTM))
+			throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing weapon"));
+		((Grenade*)weapons[2][i])->setActive(false);
+		((Grenade*)weapons[2][i])->setCurrentFrame(3);//grenade
 	}
 
 	return;
@@ -235,6 +243,16 @@ void Rogue::reset()
 		crate[i].setPositionX(0);
 		crate[i].setPositionY(0);
 	}
+	for (int i=0;i<NUM_WEAPONS;i++){
+		for (int j=0;j<3;j++){
+			weapons[j][i]->setActive(false);
+		}
+		((C4*)weapons[1][i])->resetFuse();
+		((Grenade*)weapons[2][i])->resetFuse();
+	}
+	WeaponHud.resetAmmo();
+	isFlash = false;
+	flashTime = FLASH_DURATION;
 	for(int i=0; i<MAX_GUARDS; i++)
 	{
 		guard[i].reset();
@@ -415,6 +433,11 @@ void Rogue::update()
 		exitGame();
 	}
 
+	if (tnow-tmusicloop>=300000){
+		audio->playCue("NeonLights");
+		tmusicloop = clock();
+	}
+
 	switch(gameState)
 	{
 	case MAIN_MENU:
@@ -501,6 +524,17 @@ void Rogue::update()
 					}
 				}
 				break;
+			case 2: //Grenade
+				for (int i=0;i<NUM_WEAPONS;i++){
+					if (!weapons[2][i]->getActive()){
+						weapons[2][i]->setActive(true);//activate weapon
+						weapons[2][i]->setVelocity(aimvec);
+						weapons[2][i]->setPosition(player.getPosition());
+						tmouseclick = clock();
+						break;
+					}
+				}
+				break;
 			}
 		
 		}
@@ -576,8 +610,31 @@ void Rogue::update()
 				else
 					((C4*)weapons[1][i])->update(frameTime);
 			}
-		}
+			if (weapons[2][i]->getActive()){
+				if (((Grenade*)weapons[2][i])->getFuse()<0.01f){
+					weapons[2][i]->setActive(false);//blowup grenade
+					((Grenade*)weapons[2][i])->resetFuse();
 
+					//damage guards near grenade
+					for (int j=0;j<numGuards;j++){
+						int tempdist = pow(guard[j].getCenterX()-weapons[2][i]->getCenterX(),2) + pow(guard[j].getCenterY()-weapons[2][i]->getCenterY(),2);
+						if (tempdist < 40000){//200 units
+							guard[j].setHealth(guard[j].getHealth()-guardNS::COLLISION_DAMAGE);
+							guard[i].flinchTime = 0.0f;
+							if (guard[j].getHealth()<0.0f)
+								guard[j].setActive(false);
+						}
+					}
+					//damage player if standing too close to grenade
+					int tempdist = pow(player.getCenterX()-weapons[2][i]->getCenterX(),2) + pow(player.getCenterY()-weapons[2][i]->getCenterY(),2);
+					if (tempdist < 40000){
+						player.setHealth(player.getHealth()-25.0f);
+					}
+				}
+				else
+					((Grenade*)weapons[2][i])->update(frameTime);
+			}
+		}
 		WeaponHud.update(frameTime);
 
 		break;
@@ -642,7 +699,9 @@ void Rogue::render()
 			if(weapons[1][i]->getActive()){
 				((C4*)weapons[1][i])->draw(camera);
 			}
-
+			if (weapons[2][i]->getActive()){
+				((Grenade*)weapons[2][i])->draw(camera);
+			}
 		}
 		Darkness.draw();
 		RedDarkness.draw(healthFilter);
@@ -744,11 +803,13 @@ void Rogue::collisions()
 						weapons[0][j]->setActive(false);
 					}
 				}
-				if (weapons[1][j]->getActive()){
-					if (weapons[1][j]->collidesWith(wall[i],collisionVector)){
-						weapons[1][j]->setPositionX(weapons[1][j]->getPositionX() - weapons[1][j]->getVelocity().x*frameTime);
-						weapons[1][j]->setPositionY(weapons[1][j]->getPositionY() - weapons[1][j]->getVelocity().y*frameTime);
-						weapons[1][j]->setVelocity(VECTOR2(0.0f,0.0f));
+				for (int k= 1;k<=2;k++){
+					if (weapons[k][j]->getActive()){
+						if (weapons[k][j]->collidesWith(wall[i],collisionVector)){
+							weapons[k][j]->setPositionX(weapons[k][j]->getPositionX() - weapons[k][j]->getVelocity().x*frameTime);
+							weapons[k][j]->setPositionY(weapons[k][j]->getPositionY() - weapons[k][j]->getVelocity().y*frameTime);
+							weapons[k][j]->setVelocity(VECTOR2(0.0f,0.0f));
+						}
 					}
 				}
 			}

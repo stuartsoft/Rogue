@@ -4,6 +4,12 @@
 C4::C4(){
 	fuse = C4NS::fusetime;
 	setFrames(1,2);
+
+	edge.top = -weaponNS::HEIGHT/2;
+	edge.bottom = weaponNS::HEIGHT/2;
+	edge.left = -20;
+	edge.right = 26;
+	collisionType = entityNS::BOX;
 }
 
 void C4::draw(VECTOR2 cam){
