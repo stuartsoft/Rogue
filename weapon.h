@@ -20,8 +20,6 @@ private:
 	entityNS::direction facingDir;
 public:
 	Weapon();
-	void Weapon::draw(VECTOR2 cam);
-	void Weapon::update(float frameTime);
 };
 
 #endif

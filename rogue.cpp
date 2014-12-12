@@ -170,12 +170,20 @@ void Rogue::initialize(HWND hwnd)
 	gameState = MAIN_MENU;
 	levelComplete = false;
 	timeInState = 0;
-	time(&tsoundfx);
+	tsoundfx = clock();
+	tmouseclick = clock();
 	flinch = false;
 	flinchTime = 0.0f;
 	healthFilter = 0;
-
 	scores = generateScoreString();
+
+	for (int i=0;i<NUM_WEAPONS;i++){
+		weapons[0][i] = new Shuriken();
+		if(!((Shuriken*)weapons[0][i])->initialize(this,weaponNS::WIDTH,weaponNS::HEIGHT,4,&WeaponTM))
+			throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing weapon"));
+		((Shuriken*)weapons[0][i])->setActive(false);
+		((Shuriken*)weapons[0][i])->setCurrentFrame(0);//shuriken image
+	}
 
 	return;
 }
@@ -381,7 +389,6 @@ void Rogue::gameStateUpdate(float f)
 void Rogue::update()
 {
 	gameStateUpdate(frameTime);
-	time(&tnow);//update current time varaible
 	if(input->isKeyDown(ESC_KEY))
 	{
 		exitGame();
@@ -418,6 +425,31 @@ void Rogue::update()
 			break;
 		}
 
+		if (WeaponHud.getAmmoForCurrentWeapon()>0 && input->getMouseLButton() && prevMouseLState ==false){
+			VECTOR2 aimvec = VECTOR2(input->getMouseX(),input->getMouseY());
+			VECTOR2 cam = VECTOR2(GAME_WIDTH/2, GAME_HEIGHT/2);
+			aimvec -= cam;
+			D3DXVec2Normalize(&aimvec,&aimvec);
+			aimvec*=500;
+			
+			//deduct ammo from weapon
+			WeaponHud.setAmmoForWeapon(WeaponHud.getAmmoForCurrentWeapon()-1,WeaponHud.getCurrentWeapon());
+			switch (WeaponHud.getCurrentWeapon())
+			{
+			case 0:
+				for (int i=0;i<NUM_WEAPONS;i++){
+					if (!weapons[0][i]->getActive()){
+						weapons[0][i]->setActive(true);//activate weapon
+						weapons[0][i]->setVelocity(aimvec);
+						weapons[0][i]->setPosition(player.getPosition());
+						tmouseclick = clock();
+						break;
+					}
+				}
+				break;
+			}
+		}
+
 		if(flinch)
 		{
 			flinchTime += frameTime;
@@ -434,8 +466,9 @@ void Rogue::update()
 		background.setY(tempy);
 		
 		for (int i=0;i<numWalls;i++){
-			if(wall[i].getActive())
+			if(wall[i].getActive()){
 				wall[i].update(frameTime);
+			}
 		}
 		for (int i=0;i<numCrates;i++){
 			if(crate[i].getActive())
@@ -448,10 +481,19 @@ void Rogue::update()
 			if(guard[i].getActive())
 				guard[i].update(frameTime);
 		}
+		for (int i=0;i<NUM_WEAPONS;i++){
+			if(weapons[0][i]->getActive()){
+				((Shuriken*)weapons[0][i])->update(frameTime);
+			}
+
+		}
+
 		WeaponHud.update(frameTime);
 
 		break;
 	}
+	prevMouseLState = input->getMouseLButton();
+	prevMouseRState = input->getMouseRButton();
 
 }
 
@@ -475,7 +517,14 @@ void Rogue::render()
 	case LEVEL2:
 	case LEVEL3:
 		background.draw();
-		
+		if(levelExit.getActive())
+		{
+			levelExit.setX(levelExit.getX()+camera.x);
+			levelExit.setY(levelExit.getY()+camera.y);
+			levelExit.draw();
+			levelExit.setX(levelExit.getX()-camera.x);
+			levelExit.setY(levelExit.getY()-camera.y);
+		}
 		if(!flinch)
 			player.draw(camera);
 		else
@@ -489,17 +538,14 @@ void Rogue::render()
 			if(guard[i].getActive())
 				guard[i].draw(camera);
 		}
-		if(levelExit.getActive())
-		{
-			levelExit.setX(levelExit.getX()+camera.x);
-			levelExit.setY(levelExit.getY()+camera.y);
-			levelExit.draw();
-			levelExit.setX(levelExit.getX()-camera.x);
-			levelExit.setY(levelExit.getY()-camera.y);
-		}
 
 		for (int i=0;i<numWalls;i++){
 			wall[i].draw(camera);
+		}
+		for (int i=0;i<NUM_WEAPONS;i++){
+			if(weapons[0][i]->getActive()){
+				((Shuriken*)weapons[0][i])->draw(camera);
+			}
 		}
 		Darkness.draw();
 		RedDarkness.draw(healthFilter);
@@ -566,7 +612,8 @@ void Rogue::ai()
 void Rogue::collisions()
 {
 	VECTOR2 collisionVector = D3DXVECTOR2(0,0);
-
+	tnow = clock();
+	
 	switch(gameState)
 	{
 	case LEVEL1:
@@ -582,11 +629,23 @@ void Rogue::collisions()
 			if (wall[i].collidesWith(player, collisionVector)){
 				player.setPositionX(player.getPositionX() - player.getVelocity().x* frameTime);
 				player.setPositionY(player.getPositionY() - player.getVelocity().y* frameTime);
-				if(difftime(tnow,tsoundfx) >0.075){
+				if(tnow - tsoundfx >1000){
 					audio->playCue("Bump");
-					time(&tsoundfx);
+					tsoundfx = clock();
 				}
 			}
+
+			for (int j=0;j<NUM_WEAPONS;j++){
+				if(weapons[0][j]->getActive()){
+					if (weapons[0][j]->collidesWith(wall[i],collisionVector)){
+						weapons[0][j]->setActive(false);
+					}
+
+				}
+
+			}
+
+
 			for(int j=0; j<numGuards ; j++)
 			{
 				if(guard[j].getActive() && wall[i].collidesWith(guard[j], collisionVector)){
@@ -599,6 +658,20 @@ void Rogue::collisions()
 		for(int i=0; i<numGuards; i++)
 		{
 			if (guard[i].getActive()){
+
+				for (int j=0;j<NUM_WEAPONS;j++){
+					if (weapons[0][j]->getActive()){
+						if(weapons[0][j]->collidesWith(guard[i],collisionVector)){
+														guard[i].setHealth(guard[i].getHealth() - guardNS::COLLISION_DAMAGE);
+							guard[i].flinchTime = 0.0f;
+							weapons[0][i]->setActive(false);
+							if (guard[i].getHealth()<=0.0f){
+								guard[i].setActive(false);
+							}
+						}
+					}
+				}
+				
 				if(!flinch && guard[i].collidesWith(player,collisionVector))
 				{
 					player.setHealth(player.getHealth() - guardNS::COLLISION_DAMAGE);
@@ -624,6 +697,8 @@ void Rogue::collisions()
 		for (int i=0;i< numCrates;i++){
 			if (crate[i].collidesWith(player, collisionVector)){
 				crate[i].setVelocity(player.getVelocity()*2.5);
+				audio->playCue("Bump");
+				tsoundfx = clock();
 			}
 			for (int j=0;j<numWalls;j++){
 				if(crate[i].collidesWith(wall[j], collisionVector)){
@@ -642,6 +717,8 @@ void Rogue::collisions()
 			for (int j=0;j<numCrates;j++){
 				if (i!=j && !crate[i].CollidedThisFrame && !crate[i].CollidedThisFrame){
 					if (crate[i].collidesWith(crate[j],collisionVector)){
+						audio->playCue("Bump");
+						tsoundfx = clock();
 						//calculate elastic collision physics here
 						VECTOR2 vf1, vf2;
 						ElasticCollision(crate[i].getMass(), crate[j].getMass(),crate[i].getVelocity(), crate[j].getVelocity(),vf1,vf2);

@@ -16,6 +16,9 @@
 #include "menu.h"
 #include "guard.h"
 #include "Weaponhud.h"
+#include "weapon.h"
+#include "shuriken.h"
+#include <time.h>
 
 #include <sstream>
 
@@ -36,7 +39,8 @@ private:
 	Guard guard[MAX_GUARDS];
 	Wall wall[MAX_WALLS];
 	Crate crate[MAX_CRATES];
-	
+	Weapon * weapons[4][NUM_WEAPONS]; 
+
 	TextureManager ExitTM;
 	Entity levelExit;
 
@@ -63,8 +67,9 @@ private:
 
 	GameStates gameState;
 	float timeInState;
-	time_t tsoundfx;
-	time_t tnow;
+	clock_t tsoundfx;
+	clock_t tnow;
+	clock_t tmouseclick;
 	Menu* menu;
 
 	int score;
@@ -74,6 +79,8 @@ private:
 	bool levelComplete;
 	bool flinch;
 	float flinchTime;
+	bool prevMouseLState;
+	bool prevMouseRState;
 	DWORD healthFilter;
 
 	void recordHighScore(int s);

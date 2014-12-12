@@ -2,6 +2,7 @@
 #define _WEAPONHUD_H
 #define WIN32_LEAN_AND_MEAN
 #include "entity.h"
+#include "textDX.h"
 
 namespace weaponhudNS{
 	const int WIDTH = 280;                   // image width
@@ -15,13 +16,21 @@ namespace weaponhudNS{
 
 class Weaponhud: public Entity{
 private:
+	int currentweapon;
 	time_t timesincekeypress;
+	time_t tnow;
 	Image WeaponImg[4];
+	int ammo[4];
+	TextDX* ammotext;
 public:
 	Weaponhud();
 	void initWeapons(TextureManager* tm);
 	void Weaponhud::draw(VECTOR2 cam);
 	void Weaponhud::update(float frameTime);
+	int Weaponhud::getCurrentWeapon(){return currentweapon;};
+	int Weaponhud::getAmmoForWeapon(int w){return ammo[w];};
+	int Weaponhud::getAmmoForCurrentWeapon(){return ammo[currentweapon];};
+	void Weaponhud::setAmmoForWeapon(int a,int w){ammo[w] = a;};
 };
 
 #endif

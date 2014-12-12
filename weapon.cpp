@@ -21,15 +21,3 @@ Weapon::Weapon(){
 	collisionType = entityNS::BOX;
 	facingDir = entityNS::direction::none;
 }
-
-void Weapon::draw(VECTOR2 cam){
-	spriteData.x += cam.x;
-	spriteData.y += cam.y;
-	Image::draw();              // draw Player
-	spriteData.x -= cam.x;
-	spriteData.y -= cam.y;
-}
-
-void Weapon::update(float frameTime){
-
-}
