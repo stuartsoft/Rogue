@@ -670,17 +670,12 @@ void Rogue::update()
 					((Grenade*)weapons[2][i])->resetFuse();
 					isFlash = true;
 					flashTime = FLASH_DURATION/2;
-					//damage guards near grenade
+					//kill guards near grenade
 					for (int j=0;j<numGuards;j++){
-						int tempdist = pow(guard[j].getCenterX()-weapons[2][i]->getCenterX(),2) + pow(guard[j].getCenterY()-weapons[2][i]->getCenterY(),2);
+						int tempdist = pow(guard[j].getCenterX()-weapons[1][i]->getCenterX(),2) + pow(guard[j].getCenterY()-weapons[1][i]->getCenterY(),2);
 						if (tempdist < 40000){//200 units
-							guard[j].setHealth(guard[j].getHealth()-guardNS::COLLISION_DAMAGE);
-							guard[i].flinchTime = 0.0f;
-							if (guard[j].getHealth()<0.0f)
-							{
-								guard[j].setActive(false);
-								audio->playCue("Hit");
-							}
+							guard[j].setActive(false);
+							audio->playCue("Hit");
 						}
 					}
 					//damage player if standing too close to grenade
