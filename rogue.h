@@ -47,6 +47,7 @@ private:
 	TextDX* splashFont;
 	TextDX* winFont;
 	TextDX* loseFont;
+	TextDX* scoreFont;
 
 	TextureManager backgroundtm;
 	Image background;
@@ -67,6 +68,7 @@ private:
 	Menu* menu;
 
 	int score;
+	std::string scores;
 
 	void loadLevel();
 	bool levelComplete;
@@ -75,6 +77,7 @@ private:
 	DWORD healthFilter;
 
 	void recordHighScore(int s);
+	std::string generateScoreString();
 
 public:
 	Rogue();
