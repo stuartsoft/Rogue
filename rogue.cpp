@@ -560,6 +560,18 @@ void Rogue::update()
 					((C4*)weapons[1][i])->resetFuse();
 					isFlash = true;
 					flashTime = FLASH_DURATION;
+					//kill guards near c4
+					for (int j=0;j<numGuards;j++){
+						int tempdist = pow(guard[j].getCenterX()-weapons[1][i]->getCenterX(),2) + pow(guard[j].getCenterY()-weapons[1][i]->getCenterY(),2);
+						if (tempdist < 90000){//300 units
+							guard[j].setActive(false);
+						}
+					}
+					
+					//kill player if standing too close to c4
+					int tempdist = pow(player.getCenterX()-weapons[1][i]->getCenterX(),2) + pow(player.getCenterY()-weapons[1][i]->getCenterY(),2);
+					if (tempdist < 90000)
+						player.setHealth(-5.0f);
 				}
 				else
 					((C4*)weapons[1][i])->update(frameTime);
