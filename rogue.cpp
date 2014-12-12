@@ -557,6 +557,8 @@ void Rogue::update()
 					}
 					weapons[1][i]->setActive(false);//blowup c4
 					((C4*)weapons[1][i])->resetFuse();
+					isFlash = true;
+					flashTime = FLASH_DURATION;
 				}
 				else
 					((C4*)weapons[1][i])->update(frameTime);
