@@ -478,18 +478,19 @@ void Rogue::update()
 				WeaponHud.setAmmoForWeapon(WeaponHud.getAmmoForCurrentWeapon()-1,WeaponHud.getCurrentWeapon());
 			switch (WeaponHud.getCurrentWeapon())
 			{
-			case 0:
+			case 0: //shurikens
 				for (int i=0;i<NUM_WEAPONS;i++){
 					if (!weapons[0][i]->getActive()){
 						weapons[0][i]->setActive(true);//activate weapon
 						weapons[0][i]->setVelocity(aimvec);
 						weapons[0][i]->setPosition(player.getPosition());
 						tmouseclick = clock();
+						audio->playCue("Swoosh");
 						break;
 					}
 				}
 				break;
-			case 1:
+			case 1: //C4
 				for (int i=0;i<NUM_WEAPONS;i++){
 					if (!weapons[1][i]->getActive()){
 						weapons[1][i]->setActive(true);//activate weapon
