@@ -2,10 +2,10 @@
 
 
 Knife::Knife(){
-	edge.top = -weaponNS::HEIGHT/2;
-	edge.bottom = weaponNS::HEIGHT/2;
-	edge.left = -weaponNS::WIDTH/2;
-	edge.right = weaponNS::WIDTH/2;
+	//edge.top = -11;
+	//edge.bottom = 11;
+	//edge.left = 27;
+	//edge.right = 162;
 	collisionType = entityNS::BOX;
 }
 
@@ -20,6 +20,7 @@ void Knife::draw(VECTOR2 cam){
 void Knife::update(float frameTime){
     Entity::update(frameTime);
 
+	setRadians(getRadians()+0.05);
 	//update position based on velocity changes
 	incPosition(D3DXVECTOR2(velocity*frameTime));
 

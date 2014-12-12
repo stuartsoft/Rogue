@@ -22,6 +22,7 @@
 #include "particleManager.h"
 #include <time.h>
 #include "grenade.h"
+#include "knife.h"
 
 #include <sstream>
 
@@ -37,6 +38,7 @@ private:
 	TextureManager CrateTM;
 	TextureManager WeaponTM;
 	TextureManager WeaponhudTM;
+	TextureManager KnifeTM;
 
 	Player player;
 	Guard guard[MAX_GUARDS];

@@ -40,6 +40,7 @@ public:
 	void Player::draw(VECTOR2 cam, DWORD color);
 	void Player::update(float frameTime);
 	D3DXVECTOR2 getlastmovevel(){return lastmovevel;};
+	entityNS::direction getfacingDir(){return facingDir;};
 };
 
 #endif

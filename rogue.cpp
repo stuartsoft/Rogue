@@ -140,6 +140,9 @@ void Rogue::initialize(HWND hwnd)
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init tutorial texture"));
 	if (!Tutorial.initialize(graphics, 1280, 720, 0, &TutorialTM))
 		throw(GameError(gameErrorNS::WARNING, "tutorial not initialized"));
+	
+	if(!KnifeTM.initialize(graphics, "images\\knife2x.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init knife texture"));
 	Tutorial.setX(0);
 	Tutorial.setY(0);
 
@@ -202,13 +205,13 @@ void Rogue::initialize(HWND hwnd)
 		if(!((Shuriken*)weapons[0][i])->initialize(this,weaponNS::WIDTH,weaponNS::HEIGHT,4,&WeaponTM))
 			throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing weapon"));
 		((Shuriken*)weapons[0][i])->setActive(false);
-		((Shuriken*)weapons[0][i])->setCurrentFrame(0);//shuriken image
+		((Shuriken*)weapons[0][i])->setCurrentFrame(0);//shuriken
 
 		weapons[1][i] = new C4();
 		if(!((C4*)weapons[1][i])->initialize(this,weaponNS::WIDTH,weaponNS::HEIGHT,4,&WeaponTM))
 			throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing weapon"));
 		((C4*)weapons[1][i])->setActive(false);
-		((C4*)weapons[1][i])->setCurrentFrame(1);//shuriken image
+		((C4*)weapons[1][i])->setCurrentFrame(1);//c4
 
 		weapons[2][i] = new Grenade();
 		if(!((Grenade*)weapons[2][i])->initialize(this,weaponNS::WIDTH,weaponNS::HEIGHT,4,&WeaponTM))
@@ -216,6 +219,11 @@ void Rogue::initialize(HWND hwnd)
 		((Grenade*)weapons[2][i])->setActive(false);
 		((Grenade*)weapons[2][i])->setCurrentFrame(3);//grenade
 	}
+	weapons[3][0] = new Knife();
+	if(!((Knife*)weapons[3][0])->initialize(this,162,23,0,&KnifeTM))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing weapon"));
+	((Knife*)weapons[3][0])->setActive(false);
+
 
 	if(!ifstream("scores.txt"))
 	{
@@ -532,7 +540,7 @@ void Rogue::update()
 			aimvec*=500;
 			
 			//deduct ammo from weapon
-			if(!cheats)
+			if(!cheats && WeaponHud.getCurrentWeapon()!=3)
 				WeaponHud.setAmmoForWeapon(WeaponHud.getAmmoForCurrentWeapon()-1,WeaponHud.getCurrentWeapon());
 			switch (WeaponHud.getCurrentWeapon())
 			{
@@ -570,6 +578,11 @@ void Rogue::update()
 					}
 				}
 				break;
+			case 3://Knife
+				if (!weapons[3][0]->getActive()){
+					weapons[3][0]->setActive(true);
+					weapons[3][0]->setRadians(0.0f);
+				}
 			}
 		
 		}
@@ -628,6 +641,7 @@ void Rogue::update()
 					}
 					weapons[1][i]->setActive(false);//blowup c4
 					((C4*)weapons[1][i])->resetFuse();
+					audio->playCue("explosion");
 					isFlash = true;
 					flashTime = FLASH_DURATION;
 					//kill guards near c4
@@ -649,6 +663,9 @@ void Rogue::update()
 			if (weapons[2][i]->getActive()){
 				if (((Grenade*)weapons[2][i])->getFuse()<0.01f){
 					weapons[2][i]->setActive(false);//blowup grenade
+					audio->playCue("explosion");
+					isFlash = true;
+					flashTime = FLASH_DURATION;
 					((Grenade*)weapons[2][i])->resetFuse();
 
 					//damage guards near grenade
@@ -669,6 +686,15 @@ void Rogue::update()
 				}
 				else
 					((Grenade*)weapons[2][i])->update(frameTime);
+			}
+		}
+		if(weapons[3][0]->getActive()){
+			weapons[3][0]->update(frameTime);
+			weapons[3][0]->setPositionX(player.getCenterX()-KnifeNS::WIDTH/2);
+			weapons[3][0]->setPositionY(player.getCenterY()-KnifeNS::HEIGHT/2);
+			if (weapons[3][0]->getRadians()>PI*2){
+				weapons[3][0]->setActive(false);
+				weapons[3][0]->setRadians(0.0f);
 			}
 		}
 		WeaponHud.update(frameTime);
@@ -739,6 +765,10 @@ void Rogue::render()
 				((Grenade*)weapons[2][i])->draw(camera);
 			}
 		}
+		if (weapons[3][0]->getActive()){
+			((Knife*)weapons[3][0])->draw(camera);
+		}
+
 		pm.draw(camera);
 		Darkness.draw();
 		RedDarkness.draw(healthFilter);
@@ -866,6 +896,17 @@ void Rogue::collisions()
 		for(int i=0; i<numGuards; i++)
 		{
 			if (guard[i].getActive()){
+				if (weapons[3][0]->getActive()){
+					if(guard[i].collidesWith(*weapons[3][0],collisionVector)){
+							guard[i].setHealth(guard[i].getHealth() - guardNS::COLLISION_DAMAGE);
+							guard[i].flinchTime = 0.0f;
+							if (guard[i].getHealth()<=0.0f){
+								guard[i].setActive(false);
+								score += 100;
+							}
+					}
+				}
+
 
 				for (int j=0;j<NUM_WEAPONS;j++){
 					if (weapons[0][j]->getActive()){
