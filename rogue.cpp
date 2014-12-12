@@ -482,7 +482,7 @@ void Rogue::update()
 				for (int i=0;i<NUM_WEAPONS;i++){
 					if (!weapons[0][i]->getActive()){
 						weapons[0][i]->setActive(true);//activate weapon
-						weapons[0][i]->setVelocity(aimvec/5);
+						weapons[0][i]->setVelocity(aimvec);
 						weapons[0][i]->setPosition(player.getPosition());
 						tmouseclick = clock();
 						audio->playCue("Swoosh");
