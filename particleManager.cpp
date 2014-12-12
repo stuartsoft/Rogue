@@ -88,7 +88,7 @@ void ParticleManager::draw()
 		float foobar = (foo-bar)/foo;
 		fadeAmount = 255 * foobar;
 		color = D3DCOLOR_ARGB(fadeAmount,fadeAmount,fadeAmount,fadeAmount);
-		particles[i].setScale(2.5f + 2.5f*foobar);
+		particles[i].setScale(1.0f + 1.5f*foobar);
 		particles[i].draw(color);
 		if (fadeAmount <= 20)
 			particles[i].resetParticle();

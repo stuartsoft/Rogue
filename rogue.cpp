@@ -649,6 +649,7 @@ void Rogue::update()
 						int tempdist = pow(guard[j].getCenterX()-weapons[1][i]->getCenterX(),2) + pow(guard[j].getCenterY()-weapons[1][i]->getCenterY(),2);
 						if (tempdist < 40000){//200 units
 							guard[j].setActive(false);
+							audio->playCue("Hit");
 						}
 					}
 					
@@ -667,7 +668,8 @@ void Rogue::update()
 					isFlash = true;
 					flashTime = FLASH_DURATION;
 					((Grenade*)weapons[2][i])->resetFuse();
-
+					isFlash = true;
+					flashTime = FLASH_DURATION/2;
 					//damage guards near grenade
 					for (int j=0;j<numGuards;j++){
 						int tempdist = pow(guard[j].getCenterX()-weapons[2][i]->getCenterX(),2) + pow(guard[j].getCenterY()-weapons[2][i]->getCenterY(),2);
@@ -675,7 +677,10 @@ void Rogue::update()
 							guard[j].setHealth(guard[j].getHealth()-guardNS::COLLISION_DAMAGE);
 							guard[i].flinchTime = 0.0f;
 							if (guard[j].getHealth()<0.0f)
+							{
 								guard[j].setActive(false);
+								audio->playCue("Hit");
+							}
 						}
 					}
 					//damage player if standing too close to grenade
@@ -806,6 +811,7 @@ void Rogue::render()
 		break;
 	case TUTORIAL:
 		Tutorial.draw();
+		scoreFont->print("Instructions:\n\n\tW, A, S, D to move\n\n\nHold Spacebar to sneak\n\nSneaking or standing still significantly reduces your visibility to enemies\n\n\n1, 2, 3, 4 or scroll wheel to switch weapons\n\nShuriken are quick and precise ranged weapons, but have a limited supply\n\nOne charge of C4 is granted per level, it creates a deadly explosion that can even blow through walls\n\nYour short supply of grenades can take out clumps of enemies in a pinch\n\nIf all else fails, your trusty combat knife is your backup\n\n\nUse the mouse to aim and fire weapons",50,50);
 		break;
 	}
 	graphics->spriteEnd();
@@ -830,7 +836,7 @@ void Rogue::ai()
 				guard[i].ai(hey);
 				if(hey)
 				{
-					audio->playCue("Jump");
+					audio->playCue("Hey");
 				}
 			}
 		}
@@ -914,6 +920,7 @@ void Rogue::collisions()
 							guard[i].setHealth(guard[i].getHealth() - guardNS::COLLISION_DAMAGE);
 							guard[i].flinchTime = 0.0f;
 							weapons[0][j]->setActive(false);
+							audio->playCue("Hit");
 							if (guard[i].getHealth()<=0.0f){
 								guard[i].setActive(false);
 								VECTOR2 vel = guard[i].getPosition()-player.getPosition();
@@ -928,6 +935,7 @@ void Rogue::collisions()
 				if(!flinch && !cheats && guard[i].collidesWith(player,collisionVector))
 				{
 					player.setHealth(player.getHealth() - guardNS::COLLISION_DAMAGE);
+					audio->playCue("Hit");
 					flinch = true;
 					flinchTime = 0.0f;
 				}
