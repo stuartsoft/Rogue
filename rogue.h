@@ -51,8 +51,11 @@ private:
 	TextureManager backgroundtm;
 	Image background;
 
-	TextureManager SplashTM, GameOverTM, GameWinTM;
-	Image Splash, GameOverSplash, GameWinSplash;
+	TextureManager SplashTM, GameOverTM, GameWinTM, TutorialTM;
+	Image Splash, GameOverSplash, GameWinSplash, Tutorial;
+
+	TextureManager MainMenuTM;
+	Image MainMenu;
 
 	TextureManager DarknessTM, RedDarknessTM;
 	Image Darkness, RedDarkness;

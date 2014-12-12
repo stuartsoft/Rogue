@@ -20,7 +20,8 @@ Player::Player(){
 	edge.right = 20;
 	collisionType = entityNS::BOX;
 	health = playerNS::MAX_HEALTH;
-
+	sneak = false;
+	alphaFilter = graphicsNS::ALPHA50;
 	facingDir = entityNS::direction::none;
 }
 
@@ -28,7 +29,7 @@ void Player::draw(VECTOR2 cam)
 {
 	spriteData.x += cam.x;
 	spriteData.y += cam.y;
-	Image::draw();              // draw Player
+	Image::draw(alphaFilter);              // draw Player
 	spriteData.x -= cam.x;
 	spriteData.y -= cam.y;
 }
@@ -102,14 +103,17 @@ void Player::update(float frameTime)
 	{
 		inputDir *= playerNS::SPEED/2;
 		setFrameDelay(playerNS::FRAME_DELAY/0.3f);
+		sneak = true;
 	}
 	else
 	{
 		setFrameDelay(playerNS::FRAME_DELAY);
 		inputDir *= playerNS::SPEED;
+		sneak = false;
 	}
 
 	setVelocity(inputDir);
+	alphaFilter = D3DCOLOR_ARGB(int((D3DXVec2Length(&inputDir)/(2*playerNS::SPEED)+0.5)*255),255,255,255);	
 
 	//update position based on velocity changes
 	incPosition(D3DXVECTOR2(velocity*frameTime));

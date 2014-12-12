@@ -105,6 +105,11 @@ void Rogue::initialize(HWND hwnd)
 	if (!background.initialize(graphics, 2560, 1600,0,&backgroundtm))
 		throw(GameError(gameErrorNS::WARNING, "background not initialized"));
 
+	if(!MainMenuTM.initialize(graphics, "images\\menu.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init menu background texture"));
+	if (!MainMenu.initialize(graphics, 1280, 720,0,&MainMenuTM))
+		throw(GameError(gameErrorNS::WARNING, "menu background not initialized"));
+
 	if(!SplashTM.initialize(graphics, "images\\splash.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init splash1 texture"));
 	if (!Splash.initialize(graphics, 1280, 720,0,&SplashTM))
@@ -112,13 +117,20 @@ void Rogue::initialize(HWND hwnd)
 
 	if(!GameOverTM.initialize(graphics, "images\\background2x.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init lose splash texture"));
-	if (!GameOverSplash.initialize(graphics, 1280, 800,0,&GameOverTM))
+	if (!GameOverSplash.initialize(graphics, 1280, 800, 0, &GameOverTM))
 		throw(GameError(gameErrorNS::WARNING, "lose splash not initialized"));
 
 	if(!GameWinTM.initialize(graphics, "images\\background2x.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init win splash texture"));
-	if (!GameWinSplash.initialize(graphics, 1280, 800,0,&GameWinTM))
+	if (!GameWinSplash.initialize(graphics, 1280, 800, 0, &GameWinTM))
 		throw(GameError(gameErrorNS::WARNING, "win splash not initialized"));
+
+	if(!TutorialTM.initialize(graphics, "images\\tutorial.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init tutorial texture"));
+	if (!Tutorial.initialize(graphics, 1280, 720, 0, &TutorialTM))
+		throw(GameError(gameErrorNS::WARNING, "tutorial not initialized"));
+	Tutorial.setX(0);
+	Tutorial.setY(0);
 
 	if(!DarknessTM.initialize(graphics, "images\\darkness.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init darkness texture"));
@@ -296,6 +308,11 @@ void Rogue::gameStateUpdate(float f)
 		levelComplete = false;
 		reset();
 	}
+	if(gameState == MAIN_MENU && timeInState > 0.5f && input->isKeyDown(ENTER_KEY) && menu->getSelectedItem() == 1)
+	{
+		gameState = TUTORIAL;
+		timeInState = 0;
+	}
 	if(gameState == SPLASH1 && timeInState >= 2.5f)
 	{
 		gameState = LEVEL1;
@@ -341,7 +358,11 @@ void Rogue::gameStateUpdate(float f)
 		recordHighScore(score);
 		score = 0;
 	}
-
+	if(gameState == TUTORIAL && timeInState >= 0.5f && input->isKeyDown(ENTER_KEY))
+	{
+		gameState = MAIN_MENU;
+		timeInState = 0;
+	}
 }
 
 //=============================================================================
@@ -437,8 +458,8 @@ void Rogue::render()
 	switch(gameState)
 	{
 	case MAIN_MENU:
+		MainMenu.draw();
 		menu->displayMenu();
-
 		break;
 	case LEVEL1:
 	case LEVEL2:
@@ -498,6 +519,9 @@ void Rogue::render()
 		winFont->print("MISSION SUCCESS!",GAME_WIDTH/5,GAME_HEIGHT/4);
 		winFont->print("Press Enter to return!",GAME_WIDTH/5,3*GAME_HEIGHT/4);
 		winFont->print(scorestr.str(),GAME_WIDTH/5,GAME_HEIGHT/2);
+		break;
+	case TUTORIAL:
+		Tutorial.draw();
 		break;
 	}
 	graphics->spriteEnd();
@@ -707,6 +731,8 @@ void Rogue::releaseAll()
 	RedDarknessTM.onResetDevice();
 	GameOverTM.onLostDevice();
 	GameWinTM.onLostDevice();
+	TutorialTM.onLostDevice();
+	MainMenuTM.onLostDevice();
 	Game::releaseAll();
 	return;
 }
@@ -732,6 +758,8 @@ void Rogue::resetAll()
 	RedDarknessTM.onResetDevice();
 	GameOverTM.onResetDevice();
 	GameWinTM.onResetDevice();
+	TutorialTM.onResetDevice();
+	MainMenuTM.onResetDevice();
 	Game::resetAll();
 	return;
 }

@@ -31,6 +31,9 @@ class Player: public Entity{
 private:
 	entityNS::direction facingDir;
 	D3DXVECTOR2 lastmovevel;//last movement velocity
+	bool sneak;
+	DWORD alphaFilter;
+
 public:
 	Player();
 	void Player::draw(VECTOR2 cam);
