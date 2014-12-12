@@ -527,16 +527,19 @@ void Rogue::update()
 					int distToNearestWallsq=100000;//distance to nearest wall squared
 					int nearestWall=-1;
 					for (int j=0;j<numWalls;j++){
-						int tempdist = pow(wall[j].getCenterX()-weapons[1][i]->getCenterX(),2) + pow(wall[j].getCenterY()-weapons[1][i]->getCenterY(),2);
-						if (tempdist < distToNearestWallsq){
-							distToNearestWallsq = tempdist;
-							nearestWall = j;
+						if(wall[j].getActive()){	
+							int tempdist = pow(wall[j].getCenterX()-weapons[1][i]->getCenterX(),2) + pow(wall[j].getCenterY()-weapons[1][i]->getCenterY(),2);
+							if (tempdist < 90000 && tempdist < distToNearestWallsq){
+								distToNearestWallsq = tempdist;
+								nearestWall = j;
+							}
 						}
 					}
 					if(nearestWall!=-1){
 						wall[nearestWall].setActive(false);
 					}
 					weapons[1][i]->setActive(false);//blowup c4
+					((C4*)weapons[1][i])->resetFuse();
 				}
 				else
 					((C4*)weapons[1][i])->update(frameTime);

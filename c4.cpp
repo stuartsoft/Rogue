@@ -27,7 +27,7 @@ void C4::update(float frameTime){
 		else
 			velocity.y+=DragConstant;
 	}
-	if (D3DXVec2Length(&velocity)<2.0f){
+	if (D3DXVec2Length(&velocity)<3.0f){
 		velocity = VECTOR2(0,0);
 	}
 

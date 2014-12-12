@@ -23,6 +23,7 @@ public:
 	void update(float frameTime);
 	void testfun(){};
 	float getFuse(){return fuse;};
+	void resetFuse(){fuse = C4NS::fusetime;};
 
 };
 
