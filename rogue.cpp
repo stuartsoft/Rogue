@@ -198,6 +198,12 @@ void Rogue::initialize(HWND hwnd)
 			throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing weapon"));
 		((Shuriken*)weapons[0][i])->setActive(false);
 		((Shuriken*)weapons[0][i])->setCurrentFrame(0);//shuriken image
+
+		weapons[1][i] = new C4();
+		if(!((C4*)weapons[1][i])->initialize(this,weaponNS::WIDTH,weaponNS::HEIGHT,4,&WeaponTM))
+			throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing weapon"));
+		((C4*)weapons[1][i])->setActive(false);
+		((C4*)weapons[1][i])->setCurrentFrame(1);//shuriken image
 	}
 
 	return;
@@ -483,7 +489,19 @@ void Rogue::update()
 					}
 				}
 				break;
+			case 1:
+				for (int i=0;i<NUM_WEAPONS;i++){
+					if (!weapons[1][i]->getActive()){
+						weapons[1][i]->setActive(true);//activate weapon
+						weapons[1][i]->setVelocity(aimvec);
+						weapons[1][i]->setPosition(player.getPosition());
+						tmouseclick = clock();
+						break;
+					}
+				}
+				break;
 			}
+		
 		}
 
 		if(flinch)
@@ -521,7 +539,28 @@ void Rogue::update()
 			if(weapons[0][i]->getActive()){
 				((Shuriken*)weapons[0][i])->update(frameTime);
 			}
-
+			if (weapons[1][i]->getActive()){
+				if (((C4*)weapons[1][i])->getFuse()<0.01f){
+					int distToNearestWallsq=100000;//distance to nearest wall squared
+					int nearestWall=-1;
+					for (int j=0;j<numWalls;j++){
+						if(wall[j].getActive()){	
+							int tempdist = pow(wall[j].getCenterX()-weapons[1][i]->getCenterX(),2) + pow(wall[j].getCenterY()-weapons[1][i]->getCenterY(),2);
+							if (tempdist < 90000 && tempdist < distToNearestWallsq){
+								distToNearestWallsq = tempdist;
+								nearestWall = j;
+							}
+						}
+					}
+					if(nearestWall!=-1){
+						wall[nearestWall].setActive(false);
+					}
+					weapons[1][i]->setActive(false);//blowup c4
+					((C4*)weapons[1][i])->resetFuse();
+				}
+				else
+					((C4*)weapons[1][i])->update(frameTime);
+			}
 		}
 
 		WeaponHud.update(frameTime);
@@ -578,12 +617,17 @@ void Rogue::render()
 		}
 
 		for (int i=0;i<numWalls;i++){
-			wall[i].draw(camera);
+			if(wall[i].getActive())
+				wall[i].draw(camera);
 		}
 		for (int i=0;i<NUM_WEAPONS;i++){
 			if(weapons[0][i]->getActive()){
 				((Shuriken*)weapons[0][i])->draw(camera);
 			}
+			if(weapons[1][i]->getActive()){
+				((C4*)weapons[1][i])->draw(camera);
+			}
+
 		}
 		Darkness.draw();
 		RedDarkness.draw(healthFilter);
@@ -684,9 +728,14 @@ void Rogue::collisions()
 					if (weapons[0][j]->collidesWith(wall[i],collisionVector)){
 						weapons[0][j]->setActive(false);
 					}
-
 				}
-
+				if (weapons[1][j]->getActive()){
+					if (weapons[1][j]->collidesWith(wall[i],collisionVector)){
+						weapons[1][j]->setPositionX(weapons[1][j]->getPositionX() - weapons[1][j]->getVelocity().x*frameTime);
+						weapons[1][j]->setPositionY(weapons[1][j]->getPositionY() - weapons[1][j]->getVelocity().y*frameTime);
+						weapons[1][j]->setVelocity(VECTOR2(0.0f,0.0f));
+					}
+				}
 			}
 
 
@@ -706,9 +755,9 @@ void Rogue::collisions()
 				for (int j=0;j<NUM_WEAPONS;j++){
 					if (weapons[0][j]->getActive()){
 						if(weapons[0][j]->collidesWith(guard[i],collisionVector)){
-														guard[i].setHealth(guard[i].getHealth() - guardNS::COLLISION_DAMAGE);
+							guard[i].setHealth(guard[i].getHealth() - guardNS::COLLISION_DAMAGE);
 							guard[i].flinchTime = 0.0f;
-							weapons[0][i]->setActive(false);
+							weapons[0][j]->setActive(false);
 							if (guard[i].getHealth()<=0.0f){
 								guard[i].setActive(false);
 								score += 200;
@@ -762,8 +811,8 @@ void Rogue::collisions()
 			for (int j=0;j<numCrates;j++){
 				if (i!=j && !crate[i].CollidedThisFrame && !crate[i].CollidedThisFrame){
 					if (crate[i].collidesWith(crate[j],collisionVector)){
-						audio->playCue("Bump");
-						tsoundfx = clock();
+						//audio->playCue("Bump");
+						//tsoundfx = clock();
 						//calculate elastic collision physics here
 						VECTOR2 vf1, vf2;
 						ElasticCollision(crate[i].getMass(), crate[j].getMass(),crate[i].getVelocity(), crate[j].getVelocity(),vf1,vf2);

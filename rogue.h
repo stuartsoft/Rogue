@@ -18,6 +18,7 @@
 #include "Weaponhud.h"
 #include "weapon.h"
 #include "shuriken.h"
+#include "c4.h"
 #include <time.h>
 
 #include <sstream>
