@@ -11,6 +11,8 @@
 
 using namespace std;
 
+ParticleManager pm;
+
 //=============================================================================
 // Constructor
 //=============================================================================
@@ -170,6 +172,8 @@ void Rogue::initialize(HWND hwnd)
 
 	graphics->setBackColor(graphicsNS::GRAY);
 
+	pm.initialize(graphics);
+
 	menu = new Menu();
 	menu->initialize(graphics, input);
 
@@ -218,6 +222,14 @@ void Rogue::initialize(HWND hwnd)
 	scores = generateScoreString();
 	
 	return;
+}
+
+void createParticleEffect(VECTOR2 pos, VECTOR2 vel, int numParticles){
+
+	pm.setPosition(pos);
+	pm.setVelocity(vel);
+	pm.setVisibleNParticles(numParticles);
+
 }
 
 //=============================================================================
@@ -446,6 +458,18 @@ void Rogue::update()
 			enterLastFrame = true;
 
 		break;
+	case GAME_OVER:
+		if(isFlash)
+		{
+			flashTime -= frameTime;
+			flashFilter = D3DCOLOR_ARGB(int((flashTime/FLASH_DURATION)*255),255,255,255);
+			if(flashTime <= 0)
+			{
+				isFlash = false;
+				flashTime = FLASH_DURATION;
+			}
+		}
+		break;
 	case LEVEL1:
 	case LEVEL2:
 	case LEVEL3:
@@ -531,6 +555,7 @@ void Rogue::update()
 		background.setX(tempx);
 		background.setY(tempy);
 		
+		pm.update(frameTime);
 		for (int i=0;i<numWalls;i++){
 			if(wall[i].getActive()){
 				wall[i].update(frameTime);
@@ -655,6 +680,7 @@ void Rogue::render()
 			}
 
 		}
+		pm.draw(camera);
 		Darkness.draw();
 		RedDarkness.draw(healthFilter);
 		if(isFlash)
@@ -677,6 +703,8 @@ void Rogue::render()
 		break;
 	case GAME_OVER:
 		GameOverSplash.draw();
+		if(isFlash)
+			Flash.draw(flashFilter);
 		loseFont->print("MISSION FAILED",GAME_WIDTH/5,GAME_HEIGHT/4);
 		loseFont->print("Press Enter to return...",GAME_WIDTH/5,3*GAME_HEIGHT/4);
 		loseFont->print(scorestr.str(),GAME_WIDTH/5,GAME_HEIGHT/2);
@@ -786,6 +814,9 @@ void Rogue::collisions()
 							weapons[0][j]->setActive(false);
 							if (guard[i].getHealth()<=0.0f){
 								guard[i].setActive(false);
+								VECTOR2 vel = guard[i].getPosition()-player.getPosition();
+								D3DXVec2Normalize(&vel,&vel);
+								createParticleEffect(guard[i].getCenterPoint(),vel*100,15);
 								score += 200;
 							}
 						}

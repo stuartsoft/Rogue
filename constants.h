@@ -85,6 +85,9 @@ const float MIN_FRAME_RATE = 10.0f;             // the minimum frame rate
 const float MIN_FRAME_TIME = 1.0f/FRAME_RATE;   // minimum desired time for 1 frame
 const float MAX_FRAME_TIME = 1.0f/MIN_FRAME_RATE; // maximum time used in calculations
 
+const int MAX_NUMBER_PARTICLES = 1000;
+const float MAX_PARTICLE_LIFETIME = 1.5f;
+
 const int NUM_SCORES = 10;
 
 const int MAX_WALLS = 300;
@@ -125,7 +128,7 @@ const UCHAR E_KEY		 = 0x45;
 const char PLAYER_TEXTURE[] = "images\\player2x.png";
 const char WALL_TEXTURE[] = "images\\wall2x.png";
 const char EXIT_TEXTURE[] = "images\\exit2x.png";
-
+const char BLOOD_IMAGE[] = "images\\blood.png";
 
 // splash screen images
 

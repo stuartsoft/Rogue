@@ -19,6 +19,7 @@
 #include "weapon.h"
 #include "shuriken.h"
 #include "c4.h"
+#include "particleManager.h"
 #include <time.h>
 
 #include <sstream>

@@ -101,6 +101,8 @@
     <ClCompile Include="image.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="menu.cpp" />
+    <ClCompile Include="particle.cpp" />
+    <ClCompile Include="particleManager.cpp" />
     <ClCompile Include="player_BOOM.cpp" />
     <ClCompile Include="rogue.cpp" />
     <ClCompile Include="shuriekn.cpp" />
@@ -124,6 +126,8 @@
     <ClInclude Include="image.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="menu.h" />
+    <ClInclude Include="particle.h" />
+    <ClInclude Include="particleManager.h" />
     <ClInclude Include="player_BOOM.h" />
     <ClInclude Include="rogue.h" />
     <ClInclude Include="shuriken.h" />
