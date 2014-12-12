@@ -672,7 +672,7 @@ void Rogue::update()
 					flashTime = FLASH_DURATION/2;
 					//kill guards near grenade
 					for (int j=0;j<numGuards;j++){
-						int tempdist = pow(guard[j].getCenterX()-weapons[1][i]->getCenterX(),2) + pow(guard[j].getCenterY()-weapons[1][i]->getCenterY(),2);
+						int tempdist = pow(guard[j].getCenterX()-weapons[2][i]->getCenterX(),2) + pow(guard[j].getCenterY()-weapons[2][i]->getCenterY(),2);
 						if (tempdist < 40000){//200 units
 							guard[j].setActive(false);
 							audio->playCue("Hit");
