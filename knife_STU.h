@@ -3,7 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include "constants.h"
-#include "weapon.h"
+#include "weapon_stu.h"
 
 namespace KnifeNS
 {

@@ -11,18 +11,18 @@
 #include "constants.h"
 #include "entity.h"
 #include "player_BOOM.h"
-#include "wall.h"
-#include "crate.h"
+#include "wall_stu.h"
+#include "crate_stu.h"
 #include "menu.h"
-#include "guard.h"
-#include "Weaponhud.h"
-#include "weapon.h"
-#include "shuriken.h"
-#include "c4.h"
+#include "guard_boom.h"
+#include "Weaponhud_stu.h"
+#include "weapon_stu.h"
+#include "shuriken_stu.h"
+#include "c4_stu.h"
 #include "particleManager.h"
 #include <time.h>
-#include "grenade.h"
-#include "knife.h"
+#include "grenade_stu.h"
+#include "knife_stu.h"
 
 #include <sstream>
 

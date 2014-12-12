@@ -1,4 +1,4 @@
-#include "shuriken.h"
+#include "shuriken_stu.h"
 
 
 Shuriken::Shuriken(){

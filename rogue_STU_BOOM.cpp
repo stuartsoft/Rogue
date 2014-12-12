@@ -3,7 +3,7 @@
 // Charles Kelly
 // Chapter 8 threeCsDX.cpp v1.0
 
-#include "Rogue.h"
+#include "Rogue_stu_boom.h"
 #include <iostream>
 #include <fstream>
 #include <ctime>
