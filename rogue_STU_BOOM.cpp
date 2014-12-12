@@ -953,7 +953,7 @@ void Rogue::collisions()
 		for (int i=0;i< numCrates;i++){
 			if (crate[i].collidesWith(player, collisionVector)){
 				crate[i].setVelocity(player.getVelocity()*2.5);
-				audio->playCue("Bump");
+				//audio->playCue("Bump");
 				tsoundfx = clock();
 			}
 			for (int j=0;j<numWalls;j++){

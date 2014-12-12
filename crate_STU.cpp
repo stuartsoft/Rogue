@@ -57,7 +57,7 @@ void Crate::draw(VECTOR2 cam)
 void Crate::update(float frameTime)
 {
 	CollidedThisFrame = false;
-	float DragConstant = 3.0f;
+	float DragConstant = 400.0f*frameTime;
     Entity::update(frameTime);
 	if (abs(velocity.x)>2.0f || abs(velocity.y)>2.0f){
 		if(velocity.x>0)
