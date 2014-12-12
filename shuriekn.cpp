@@ -7,6 +7,7 @@ Shuriken::Shuriken(){
 	edge.left = -weaponNS::WIDTH/2;
 	edge.right = weaponNS::WIDTH/2;
 	collisionType = entityNS::BOX;
+	setScale(.75);
 }
 
 void Shuriken::draw(VECTOR2 cam){

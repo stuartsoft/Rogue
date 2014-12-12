@@ -186,7 +186,6 @@ void Rogue::initialize(HWND hwnd)
 	flinch = false;
 	flinchTime = 0.0f;
 	healthFilter = 0;
-	scores = generateScoreString();
 	cheats = false;
 	enterLastFrame = false;
 	isFlash = false;
@@ -206,6 +205,18 @@ void Rogue::initialize(HWND hwnd)
 		((C4*)weapons[1][i])->setCurrentFrame(1);//shuriken image
 	}
 
+	if(!ifstream("scores.txt"))
+	{
+		ofstream outfile;
+		outfile.open("scores.txt");
+		for(int i=0; i<NUM_SCORES; i++)
+		{
+			outfile << 0 << endl;
+		}
+		outfile.close();
+	}
+	scores = generateScoreString();
+	
 	return;
 }
 
@@ -862,8 +873,6 @@ void Rogue::recordHighScore(int s)
 	}
 
 	ofstream outfile;
-	outfile.open("scores.txt");
-	outfile.close();
 	ifstream infile;
 	infile.open("scores.txt");
 	if(infile.is_open())

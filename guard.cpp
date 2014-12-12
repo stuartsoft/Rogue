@@ -134,7 +134,7 @@ void Guard::ai(bool &hey)
 	float tarRad = atan2(-dist.y,dist.x);
 	float sightRad = getVisionAngle();
 	float angle2 = tarRad - sightRad;
-	if(abs(angle2) < guardNS::VISION_ANGLE) 
+/*	if(abs(angle2) < guardNS::VISION_ANGLE) 
 	{
 		if(distL < guardNS::VISION_LENGTH)
 		{
@@ -146,7 +146,7 @@ void Guard::ai(bool &hey)
 			}
 			alertTime = 0.0f;
 		}
-	}
+	}*/
 
 	if(alert)
 	{
@@ -172,7 +172,7 @@ void Guard::ai(bool &hey)
 		{
 			deltaTrack(anchor);
 			dist = getCenterPoint()-anchor;
-			if(D3DXVec2Length(&dist) < 5)
+			if(D3DXVec2Length(&dist) < 10)
 			{
 				onPatrol = true;
 				patrolTar = patrolPoint2;
