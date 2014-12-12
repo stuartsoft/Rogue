@@ -107,6 +107,13 @@ void Rogue::initialize(HWND hwnd)
 	if (!background.initialize(graphics, 2560, 1600,0,&backgroundtm))
 		throw(GameError(gameErrorNS::WARNING, "background not initialized"));
 
+	if(!CheatsIndicatorTM.initialize(graphics, "images\\cheats.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init cheats texture"));
+	if (!CheatsIndicator.initialize(graphics, 100, 75, 0, &CheatsIndicatorTM))
+		throw(GameError(gameErrorNS::WARNING, "cheats img not initialized"));
+	CheatsIndicator.setX(GAME_WIDTH - 100);
+	CheatsIndicator.setY(0);
+
 	if(!MainMenuTM.initialize(graphics, "images\\menu.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init menu background texture"));
 	if (!MainMenu.initialize(graphics, 1280, 720,0,&MainMenuTM))
@@ -176,6 +183,8 @@ void Rogue::initialize(HWND hwnd)
 	flinchTime = 0.0f;
 	healthFilter = 0;
 	scores = generateScoreString();
+	cheats = false;
+	enterLastFrame = false;
 
 	for (int i=0;i<NUM_WEAPONS;i++){
 		weapons[0][i] = new Shuriken();
@@ -398,11 +407,20 @@ void Rogue::update()
 	{
 	case MAIN_MENU:
 		menu->update();
-
-		if(input->isKeyDown(ENTER_KEY) && menu->getSelectedItem() == 3)
+		
+		if(!enterLastFrame && input->isKeyDown(ENTER_KEY) && menu->getSelectedItem() == 3)
 		{
 			exitGame();
 		}
+		if(!enterLastFrame && input->isKeyDown(ENTER_KEY) && menu->getSelectedItem() == 2)
+		{
+			cheats = !cheats;
+		}
+		
+		if(enterLastFrame)
+			enterLastFrame = false;
+		if(input->isKeyDown(ENTER_KEY))
+			enterLastFrame = true;
 
 		break;
 	case LEVEL1:
@@ -433,7 +451,8 @@ void Rogue::update()
 			aimvec*=500;
 			
 			//deduct ammo from weapon
-			WeaponHud.setAmmoForWeapon(WeaponHud.getAmmoForCurrentWeapon()-1,WeaponHud.getCurrentWeapon());
+			if(!cheats)
+				WeaponHud.setAmmoForWeapon(WeaponHud.getAmmoForCurrentWeapon()-1,WeaponHud.getCurrentWeapon());
 			switch (WeaponHud.getCurrentWeapon())
 			{
 			case 0:
@@ -511,6 +530,8 @@ void Rogue::render()
 	case MAIN_MENU:
 		MainMenu.draw();
 		scoreFont->print(scores,(5*GAME_WIDTH)/6,GAME_HEIGHT/10);
+		if(cheats)
+			CheatsIndicator.draw();
 		menu->displayMenu();
 		break;
 	case LEVEL1:
@@ -550,8 +571,9 @@ void Rogue::render()
 		Darkness.draw();
 		RedDarkness.draw(healthFilter);
 		WeaponHud.draw(camera);
+		if(cheats)
+			CheatsIndicator.draw();
 		break;
-
 	case SPLASH1:
 		Splash.draw();
 		splashFont->print("ALPHA MISSION: BEGIN",GAME_WIDTH/4,GAME_HEIGHT/4);
@@ -672,7 +694,7 @@ void Rogue::collisions()
 					}
 				}
 				
-				if(!flinch && guard[i].collidesWith(player,collisionVector))
+				if(!flinch && !cheats && guard[i].collidesWith(player,collisionVector))
 				{
 					player.setHealth(player.getHealth() - guardNS::COLLISION_DAMAGE);
 					flinch = true;
@@ -832,6 +854,7 @@ void Rogue::releaseAll()
 	GameWinTM.onLostDevice();
 	TutorialTM.onLostDevice();
 	MainMenuTM.onLostDevice();
+	CheatsIndicatorTM.onLostDevice();
 	Game::releaseAll();
 	return;
 }
@@ -860,6 +883,7 @@ void Rogue::resetAll()
 	GameWinTM.onResetDevice();
 	TutorialTM.onResetDevice();
 	MainMenuTM.onResetDevice();
+	CheatsIndicatorTM.onResetDevice();
 	Game::resetAll();
 	return;
 }

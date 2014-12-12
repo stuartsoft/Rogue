@@ -59,8 +59,8 @@ private:
 	TextureManager SplashTM, GameOverTM, GameWinTM, TutorialTM;
 	Image Splash, GameOverSplash, GameWinSplash, Tutorial;
 
-	TextureManager MainMenuTM;
-	Image MainMenu;
+	TextureManager MainMenuTM, CheatsIndicatorTM;
+	Image MainMenu, CheatsIndicator;
 
 	TextureManager DarknessTM, RedDarknessTM;
 	Image Darkness, RedDarkness;
@@ -82,6 +82,9 @@ private:
 	bool prevMouseLState;
 	bool prevMouseRState;
 	DWORD healthFilter;
+
+	bool cheats;
+	bool enterLastFrame;
 
 	void recordHighScore(int s);
 	std::string generateScoreString();
