@@ -689,6 +689,7 @@ void Rogue::collisions()
 							weapons[0][i]->setActive(false);
 							if (guard[i].getHealth()<=0.0f){
 								guard[i].setActive(false);
+								score += 200;
 							}
 						}
 					}
