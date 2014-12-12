@@ -103,6 +103,8 @@
     <ClCompile Include="input.cpp" />
     <ClCompile Include="knife.cpp" />
     <ClCompile Include="menu.cpp" />
+    <ClCompile Include="particle.cpp" />
+    <ClCompile Include="particleManager.cpp" />
     <ClCompile Include="player_BOOM.cpp" />
     <ClCompile Include="rogue.cpp" />
     <ClCompile Include="shuriekn.cpp" />
@@ -128,6 +130,8 @@
     <ClInclude Include="input.h" />
     <ClInclude Include="knife.h" />
     <ClInclude Include="menu.h" />
+    <ClInclude Include="particle.h" />
+    <ClInclude Include="particleManager.h" />
     <ClInclude Include="player_BOOM.h" />
     <ClInclude Include="rogue.h" />
     <ClInclude Include="shuriken.h" />
