@@ -62,8 +62,12 @@ private:
 	TextureManager MainMenuTM, CheatsIndicatorTM;
 	Image MainMenu, CheatsIndicator;
 
-	TextureManager DarknessTM, RedDarknessTM;
-	Image Darkness, RedDarkness;
+	TextureManager DarknessTM, RedDarknessTM, FlashTM;
+	Image Darkness, RedDarkness, Flash;
+
+	bool isFlash;
+	float flashTime;
+	DWORD flashFilter;
 
 	GameStates gameState;
 	float timeInState;

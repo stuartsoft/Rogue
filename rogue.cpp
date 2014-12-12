@@ -149,6 +149,10 @@ void Rogue::initialize(HWND hwnd)
 		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init darkness texture"));
 	if(!RedDarkness.initialize(graphics, 1280, 720,0,&RedDarknessTM))
 		throw(GameError(gameErrorNS::WARNING, "darkness not initialized"));
+	if(!FlashTM.initialize(graphics, "images\\flash.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR,"Error init flash texture"));
+	if(!Flash.initialize(graphics, 1280, 720,0,&FlashTM))
+		throw(GameError(gameErrorNS::WARNING, "flash not initialized"));
 
 	if(splashFont->initialize(graphics, 52, true, false, "Stencil") == false)
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
@@ -185,6 +189,8 @@ void Rogue::initialize(HWND hwnd)
 	scores = generateScoreString();
 	cheats = false;
 	enterLastFrame = false;
+	isFlash = false;
+	flashTime = FLASH_DURATION;
 
 	for (int i=0;i<NUM_WEAPONS;i++){
 		weapons[0][i] = new Shuriken();
@@ -430,6 +436,17 @@ void Rogue::update()
 		camera.x = GAME_WIDTH/2 - player.getCenterX();
 		camera.y = GAME_HEIGHT/2 - player.getCenterY();
 		
+		if(isFlash)
+		{
+			flashTime -= frameTime;
+			flashFilter = D3DCOLOR_ARGB(int((flashTime/FLASH_DURATION)*255),255,255,255);
+			if(flashTime <= 0)
+			{
+				isFlash = false;
+				flashTime = FLASH_DURATION;
+			}
+		}
+
 		if(!flinch)
 		{
 			player.setHealth(min(player.getHealth()+5*frameTime,playerNS::MAX_HEALTH));
@@ -570,6 +587,8 @@ void Rogue::render()
 		}
 		Darkness.draw();
 		RedDarkness.draw(healthFilter);
+		if(isFlash)
+			Flash.draw(flashFilter);
 		WeaponHud.draw(camera);
 		if(cheats)
 			CheatsIndicator.draw();
@@ -618,11 +637,14 @@ void Rogue::ai()
 		bool hey;
 		for (int i=0;i<numGuards;i++)
 		{
-			hey = false;
-			guard[i].ai(hey);
-			if(hey)
+			if(guard[i].getActive())
 			{
-				audio->playCue("Jump");
+				hey = false;
+				guard[i].ai(hey);
+				if(hey)
+				{
+					audio->playCue("Jump");
+				}
 			}
 		}
 	}
@@ -850,7 +872,8 @@ void Rogue::releaseAll()
 	WeaponhudTM.onLostDevice();
 	SplashTM.onLostDevice();
 	DarknessTM.onLostDevice();
-	RedDarknessTM.onResetDevice();
+	RedDarknessTM.onLostDevice();
+	FlashTM.onLostDevice();
 	GameOverTM.onLostDevice();
 	GameWinTM.onLostDevice();
 	TutorialTM.onLostDevice();
@@ -880,6 +903,7 @@ void Rogue::resetAll()
 	SplashTM.onResetDevice();
 	DarknessTM.onResetDevice();
 	RedDarknessTM.onResetDevice();
+	FlashTM.onResetDevice();
 	GameOverTM.onResetDevice();
 	GameWinTM.onResetDevice();
 	TutorialTM.onResetDevice();
